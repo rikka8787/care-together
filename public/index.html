@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f3">
+  <title>安心照護｜家人的健康日常</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    :root{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#273d36;background:#f6f7f3;font-synthesis:none}
+    *{box-sizing:border-box}body{margin:0;font-size:15px;line-height:1.55}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #85bbaa;outline-offset:2px}
+    .shell{max-width:1180px;margin:auto;padding:0 24px}.top{background:#fff;border-bottom:1px solid #e8eee8}.top-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:11px;font-size:20px;font-weight:800;letter-spacing:.05em}.brand-icon{width:39px;height:39px;border-radius:13px;background:#367a66;color:white;display:grid;place-items:center;font-size:21px}.brand small{display:block;color:#9aa8a0;font-size:10px;font-weight:600;letter-spacing:.13em;line-height:1}.top-right{display:flex;align-items:center;gap:14px}.demo{font-size:12px;color:#7a8a80;background:#f2f5f1;border-radius:20px;padding:7px 11px}.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#e6eee6;color:#4e7662;font-weight:800}
+    .layout{display:grid;grid-template-columns:196px minmax(0,1fr);gap:30px;padding-top:30px;padding-bottom:50px}.sidebar{padding-top:7px}.side-label{color:#a1afa5;font-size:11px;letter-spacing:.12em;font-weight:800;margin:0 0 12px 14px}.nav-button{width:100%;border:0;background:transparent;color:#72837a;padding:13px 15px;border-radius:10px;text-align:left;font-weight:700;display:flex;align-items:center;gap:12px;margin:3px 0}.nav-button.active{background:#e5eee7;color:#326d58}.nav-icon{font-size:18px;width:22px;text-align:center}.side-note{margin-top:42px;padding:17px;border-radius:14px;background:#ecf2e9;color:#6b8070;font-size:12px;line-height:1.7}.side-note strong{display:block;color:#52735f;font-size:13px;margin-bottom:5px}
+    .content{min-width:0}.page-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:0 0 22px}.eyebrow{font-size:12px;letter-spacing:.14em;color:#789181;font-weight:800;margin-bottom:5px}.page-head h1{font-size:27px;line-height:1.25;margin:0;color:#253f34;letter-spacing:.02em}.page-head p{margin:7px 0 0;color:#899a8f;font-size:13px}.head-actions{display:flex;gap:9px;flex-wrap:wrap}.btn{border:1px solid #dae5dc;border-radius:9px;background:#fff;color:#4b6c5a;padding:10px 15px;font-weight:700;min-height:43px}.btn:hover{background:#f3f8f3}.btn.primary{background:#367a66;color:#fff;border-color:#367a66}.btn.primary:hover{background:#286650}.btn.small{padding:7px 12px;font-size:13px;min-height:36px}.btn.danger{color:#a65341}.banner{background:#e9f1e7;border:1px solid #dfeadd;border-radius:15px;padding:20px 23px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px}.banner .hello{color:#4b765d;font-size:12px;letter-spacing:.1em;font-weight:800}.banner h2{margin:4px 0 2px;font-size:20px;color:#315d48}.banner p{margin:0;color:#788f7d;font-size:13px}.banner-art{font-size:33px;padding:0 12px}
+    .grid{display:grid;grid-template-columns:minmax(0,1.58fr) minmax(260px,1fr);gap:18px}.stack{display:grid;gap:18px;align-content:start}.card{background:#fff;border:1px solid #e8eee9;border-radius:15px;box-shadow:0 3px 16px rgba(49,77,59,.035);padding:21px}.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:17px}.card-title{font-size:16px;font-weight:800;color:#304c3e;margin:0}.card-sub{font-size:12px;color:#9aa99e;margin:4px 0 0}.tag{white-space:nowrap;display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:5px 10px;background:#edf5ee;color:#4b8a60;font-weight:700;font-size:12px}.tag.warning{background:#fff0e8;color:#ba5c37}.tag.neutral{background:#f2f4f1;color:#7e8d81}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.metric{border-right:1px solid #edf1ed;padding:3px 8px 3px 0;min-width:0}.metric:last-child{border:0}.metric-label{color:#8b9b8f;font-size:12px;margin-bottom:9px}.metric-value{font-size:24px;line-height:1.15;font-weight:800;color:#304b3e;white-space:nowrap;letter-spacing:-.03em}.metric-value.alert{color:#c26440}.unit{font-size:11px;font-weight:500;letter-spacing:0;color:#a0ada3}.metric-foot{font-size:11px;color:#a2afa5;margin-top:8px}.card-footer{border-top:1px solid #f0f3f0;margin-top:17px;padding-top:13px;color:#8d9f92;font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.text-button{border:0;background:none;color:#518a70;padding:0;font-weight:800}.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.check{min-height:48px;border:1px solid #e8eee9;border-radius:9px;background:#fff;text-align:left;padding:9px 10px;color:#778a7d;font-size:13px;display:flex;align-items:center;gap:9px;font-weight:700}.check.done{background:#f2f7f2;border-color:#e1eee1;color:#4a745a}.check-mark{width:20px;height:20px;flex-shrink:0;border:1px solid #cbd9ce;border-radius:6px;display:grid;place-items:center;color:transparent;font-size:13px}.done .check-mark{background:#6eaa7a;border-color:#6eaa7a;color:white}.progress-line{height:5px;background:#edf2ed;border-radius:6px;overflow:hidden;margin-top:15px}.progress-line span{display:block;height:100%;background:#79ad83;border-radius:6px;transition:width .2s}.mini-label{display:flex;justify-content:space-between;color:#91a096;font-size:12px;margin-top:8px}
+    .section-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:2px 0 17px}.section-heading h2{font-size:16px;margin:0}.timeline-item{position:relative;padding:0 0 20px 27px;border-left:1px solid #e3ebe4;margin-left:6px}.timeline-item:last-child{padding-bottom:0;border-color:transparent}.dot{position:absolute;left:-6px;top:3px;width:11px;height:11px;border:2px solid white;box-shadow:0 0 0 2px #8bb79a;background:#8bb79a;border-radius:50%}.timeline-top{display:flex;justify-content:space-between;gap:8px;align-items:start}.timeline-title{font-weight:800;color:#476354;font-size:13px}.time{font-size:11px;color:#a1afa5;white-space:nowrap}.timeline-text{margin:6px 0;color:#74887b;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}.timeline-metrics{font-size:12px;background:#f7f9f6;padding:9px 11px;border-radius:8px;margin:8px 0;color:#667e6d;line-height:1.8}.photo{display:block;max-width:100%;max-height:180px;border-radius:8px;margin:10px 0;object-fit:contain}.reactions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.reaction{border:1px solid #e8eee8;background:#fff;color:#819287;border-radius:20px;padding:5px 9px;font-size:11px;min-height:32px}.reaction.selected{background:#edf5ee;color:#4d805c;border-color:#cfe3d2}.comments{font-size:12px;color:#708579;margin-top:8px;overflow-wrap:anywhere}.comment-form{display:flex;gap:6px;margin-top:8px}.comment-form input{min-width:0;flex:1;padding:8px 10px;font-size:12px}.comment-form button{font-size:12px}
+    .info-row{display:flex;gap:11px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #f0f3f0}.info-row:last-child{border-bottom:0}.info-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:#f4f7f1;flex-shrink:0}.info-row strong{font-size:13px;color:#4c6957}.info-row p{font-size:12px;color:#95a398;margin:2px 0}.link-row{display:flex;justify-content:space-between;align-items:center;gap:8px}.chart-wrap{height:250px;position:relative}.chart-card{margin-bottom:18px}.segmented{display:inline-flex;background:#f2f5f1;border-radius:9px;padding:3px;gap:2px}.segmented button{border:0;background:transparent;color:#8d9e91;border-radius:7px;padding:7px 11px;font-size:12px;font-weight:700}.segmented button.active{background:#fff;color:#4f7d60;box-shadow:0 1px 5px #dce5dd}.empty{color:#98a89c;font-size:13px;padding:12px 0}.hidden{display:none!important}.hint{font-size:12px;color:#9ba99e}.notice{font-size:12px;color:#8e9c91;line-height:1.7;margin-top:16px}.full{grid-column:1/-1}
+    dialog{border:0;border-radius:16px;box-shadow:0 16px 70px #1c362e40;width:min(560px,calc(100% - 28px));max-height:90vh;padding:0;color:#304b3e}dialog::backdrop{background:#1c3028a8}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:20px 22px;border-bottom:1px solid #edf1ed}.modal-head h2{font-size:18px;margin:0}.close{border:0;background:#f2f5f2;color:#718477;border-radius:50%;width:36px;height:36px;font-size:22px;line-height:1}.modal-body{padding:20px 22px;overflow:auto;max-height:calc(90vh - 75px)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700;color:#5a7362}.field.full{grid-column:1/-1}input,textarea,select{width:100%;border:1px solid #dce6dd;border-radius:8px;background:#fff;color:#314c3d;padding:11px;min-height:43px}textarea{resize:vertical;min-height:80px}.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.form-help{font-size:12px;color:#99a79b;font-weight:400}.error{color:#af4f39;font-size:13px;margin:10px 0}.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#304d3e;color:white;padding:11px 18px;border-radius:9px;z-index:10;font-size:13px;box-shadow:0 6px 20px #0002;max-width:90vw}
+    @media(max-width:850px){.shell{padding-left:16px;padding-right:16px}.layout{grid-template-columns:1fr;gap:18px;padding-top:18px}.sidebar{padding:0;overflow-x:auto;display:flex;gap:5px}.side-label,.side-note{display:none}.nav-button{width:auto;white-space:nowrap;padding:9px 12px;margin:0;font-size:13px}.nav-icon{font-size:16px}.top-inner{height:64px}.grid{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:repeat(2,1fr);gap:16px}.metric:nth-child(2){border:0}.metric-value{font-size:23px}}
+    @media(max-width:590px){.demo{font-size:11px}.brand{font-size:18px}.page-head{align-items:flex-start;flex-direction:column}.page-head h1{font-size:24px}.head-actions{width:100%}.head-actions .btn{flex:1}.banner{padding:17px}.banner h2{font-size:18px}.banner-art{font-size:26px;padding:0}.grid{grid-template-columns:1fr}.card{padding:18px}.metrics{grid-template-columns:repeat(4,1fr);gap:5px}.metric-value{font-size:19px}.metric-label{font-size:11px}.metric-foot{font-size:10px}.metric:nth-child(2){border-right:1px solid #edf1ed}.form-grid{grid-template-columns:1fr 1fr}.chart-wrap{height:220px}}
+    @media(max-width:360px){.metrics{grid-template-columns:repeat(2,1fr);gap:16px}.metric:nth-child(2){border:0}}
+    .language{width:auto;min-height:44px;padding:7px 10px;font-size:13px;font-weight:700;color:#315d48;background:#f6faf6}
+    .record-tip{grid-column:1/-1;margin:0;color:#627c69;font-size:13px}.metric-missing{font-size:15px;color:#8b9b8f;letter-spacing:0}.chart-empty{position:absolute;inset:0;display:grid;place-items:center;color:#718477;font-size:13px;pointer-events:none}
+    @media(max-width:590px){.top-inner{gap:8px}.language{max-width:145px}.grid{grid-template-columns:minmax(0,1fr)}.card{min-width:0}.card-head>div{min-width:0}.tag{white-space:normal;overflow-wrap:anywhere}.check-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.metric:nth-child(2){border-right:0}.head-actions .btn{min-width:0}.nav-button{min-height:44px}.reaction,.btn.small{min-height:44px}.timeline-top{flex-wrap:wrap}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}#home .grid>.stack{display:contents}#daily-checklist-card{order:-1}}
+  </style>
+</head>
+<body>
+  <header class="top"><div class="shell top-inner">
+    <div class="brand"><span class="brand-icon">✿</span><span>安心照護<small>一起照顧・一起安心</small></span></div>
+    <select id="language" class="language" aria-label="語言 / Bahasa"><option value="zh">繁體中文</option><option value="id">Bahasa Indonesia</option></select>
+  </div></header>
+  <div class="shell"><div id="auth-status" class="card" style="margin-top:24px" role="status">正在確認 LINE 登入與存取權限…</div><div id="sync-status" class="error hidden" role="alert"></div></div>
+  <div class="shell layout hidden" id="app">
+    <aside class="sidebar" aria-label="主要導覽">
+      <div class="side-label">照護空間</div>
+      <button class="nav-button active" data-page="home"><span class="nav-icon">⌂</span>今日總覽</button>
+      <button class="nav-button" data-page="timeline"><span class="nav-icon">☷</span>照護動態</button>
+      <button class="nav-button" data-page="trends"><span class="nav-icon">⌁</span>健康趨勢</button>
+      <button class="nav-button" data-page="care"><span class="nav-icon">♡</span>用藥與回診</button>
+      <button class="nav-button hidden" id="admin-nav" data-page="admin"><span class="nav-icon">♙</span>成員管理</button>
+      <div class="side-note"><strong>一起照顧，更安心 ♡</strong>每一筆紀錄，都是給家人最溫暖的報平安。</div>
+    </aside>
+    <main class="content">
+      <section id="home" class="page">
+        <div class="page-head"><div><div class="eyebrow">今日照護總覽</div><h1>今天，也一起好好照顧</h1><p id="today-label"></p></div><div class="head-actions"><button class="btn" id="copy-summary">▢ 複製今日摘要</button><button class="btn primary" data-open="record-dialog">＋ 記錄數據</button></div></div>
+        <div class="grid">
+          <div class="stack">
+            <section class="card"><div class="card-head"><div><h2 class="card-title">最新健康數據</h2><p class="card-sub" id="latest-time"></p></div><span class="tag" id="status-tag"></span></div><div class="metrics" id="metrics"></div><div class="card-footer"><span id="latest-period"></span><button class="text-button" data-go="trends">查看健康趨勢 →</button></div></section>
+            <section class="card"><div class="section-heading"><div><h2>最近照護動態</h2><div class="card-sub">記下每一份細心的照顧</div></div><button class="text-button" data-go="timeline">查看全部 →</button></div><div id="home-timeline"></div></section>
+          </div>
+          <div class="stack">
+            <section class="card" id="daily-checklist-card"><div class="card-head"><div><h2 class="card-title">今日照護打卡</h2><p class="card-sub">點一下，記錄今天的照護進度</p></div><span class="tag neutral" id="check-count"></span></div><div class="check-grid" id="checklist"></div><div class="progress-line"><span id="progress"></span></div><div class="mini-label"><span>今日完成進度</span><span id="progress-label"></span></div></section>
+            <section class="card"><div class="card-head"><div><h2 class="card-title">照護小提醒</h2><p class="card-sub">別忘了重要的日子與叮嚀</p></div><button class="text-button" data-go="care">查看 →</button></div><div id="care-preview"></div></section>
+            <section class="card" style="background:#f5f8f2"><div class="link-row"><div><strong style="font-size:14px">留下今天的照護紀錄</strong><p class="card-sub">精神、飲水或其他想分享的事</p></div><button class="btn small" data-open="log-dialog">＋ 隨手記</button></div></section>
+          </div>
+        </div>
+        <p class="notice">警示僅依範例門檻檢查收縮壓、血氧與體溫，不檢查舒張壓及脈搏；無警示不代表醫療判斷。數據僅供照護紀錄與溝通，如有不適或疑慮，請聯絡醫療專業人員；如有緊急狀況請立即撥打 119。</p>
+      </section>
+      <section id="timeline" class="page hidden"><div class="page-head"><div><div class="eyebrow">照護日誌</div><h1>照護動態</h1><p>把每個值得分享的日常，留給關心的人。</p></div><div class="head-actions"><button class="btn" data-open="log-dialog">＋ 寫照護隨手記</button><button class="btn primary" data-open="record-dialog">＋ 記錄數據</button></div></div><div class="card"><div class="section-heading"><div><h2>照護時間軸</h2><div class="card-sub">最新的紀錄會顯示在最上方</div></div></div><div id="all-timeline"></div></div></section>
+      <section id="trends" class="page hidden"><div class="page-head"><div><div class="eyebrow">健康數據</div><h1>健康趨勢</h1><p>帶著紀錄回診，和醫師一起了解變化。</p></div><div class="segmented" aria-label="圖表時間範圍"><button class="active" data-days="7">近 7 天</button><button data-days="30">近 30 天</button></div></div><div id="chart-error" class="error hidden">圖表載入失敗，請檢查網路連線並重新整理。數據仍可在照護動態中查看。</div><div class="card chart-card"><div class="card-head"><div><h2 class="card-title">血壓變化</h2><p class="card-sub">收縮壓 / 舒張壓 · mmHg</p></div></div><div class="chart-wrap"><canvas id="bp-chart" aria-label="血壓趨勢圖" role="img"></canvas></div></div><div class="grid"><div class="card"><div class="card-head"><div><h2 class="card-title">血氧變化</h2><p class="card-sub">血氧濃度 · %</p></div></div><div class="chart-wrap"><canvas id="spo2-chart" aria-label="血氧趨勢圖" role="img"></canvas></div></div><div class="card"><div class="card-head"><div><h2 class="card-title">體溫變化</h2><p class="card-sub">攝氏溫度 · °C</p></div></div><div class="chart-wrap"><canvas id="temp-chart" aria-label="體溫趨勢圖" role="img"></canvas></div></div></div><p class="notice">圖表顯示所選期間內的每筆量測，並非每日平均。數值及警示不能取代醫療判斷。</p></section>
+      <section id="care" class="page hidden"><div class="page-head"><div><div class="eyebrow">照護資訊</div><h1>用藥與回診</h1><p>重要資訊放在一起，交接時更放心。</p></div></div><div class="grid"><section class="card"><div class="card-head"><div><h2 class="card-title">常備藥物</h2><p class="card-sub">用藥請依照醫師或藥師指示</p></div><button class="btn small" data-open="medicine-dialog">＋ 新增藥物</button></div><div id="medicine-list"></div></section><section class="card"><div class="card-head"><div><h2 class="card-title">下次回診</h2><p class="card-sub">記下日期與醫囑，準備更從容</p></div><button class="btn small" id="edit-appointment">編輯</button></div><div id="appointment"></div></section></div></section>
+      <section id="admin" class="page hidden"><div class="page-head"><div><h1>成員管理</h1><p>所有成員可查看及編輯照護資料；只有管理員可以管理成員。</p></div></div><div class="card"><h2 class="card-title">新增或更新成員</h2><form id="member-form" class="form-grid" style="margin-top:16px"><label class="field full">LINE 使用者 ID<input name="userId" required pattern="U[0-9a-f]{32}" placeholder="U..." autocomplete="off"></label><label class="field">稱呼<input name="name" required maxlength="80"></label><label class="field">權限<select name="role"><option value="member">一般成員</option><option value="admin">管理員</option></select></label><div class="full"><button class="btn primary" type="submit">儲存成員</button></div></form><div class="error" id="member-error" role="alert"></div></div><div class="card" style="margin-top:18px"><h2 class="card-title">已授權成員</h2><div id="member-list"></div></div></section>
+    </main>
+  </div>
+  <dialog id="record-dialog"><div class="modal-head"><h2>記錄生理數據</h2><button class="close" type="button" aria-label="關閉">×</button></div><form id="record-form" class="modal-body"><div class="form-grid">
+    <p class="record-tip">只記血壓也可以。請至少填寫一項數據；血壓需同時填寫兩個數值。</p>
+    <label class="field">收縮壓（mmHg）<input name="systolic" type="number" inputmode="numeric" min="40" max="300" step="1" placeholder="例如 125"></label>
+    <label class="field">舒張壓（mmHg）<input name="diastolic" type="number" inputmode="numeric" min="20" max="200" step="1" placeholder="例如 78"></label>
+      <label class="field">脈搏（次 / 分）<input name="pulse" type="number" inputmode="numeric" min="20" max="250" step="1" placeholder="例如 72"></label>
+      <label class="field">血氧（%）<input name="spo2" type="number" inputmode="numeric" min="50" max="100" step="1" placeholder="例如 98"></label>
+      <label class="field">體溫（°C）<input name="temperature" type="number" inputmode="decimal" min="30" max="45" step="0.1" placeholder="例如 36.5"></label>
+      <label class="field">量測時段<select name="period"><option value="">未指定</option><option value="早上">早上</option><option value="下午">下午</option><option value="睡前">睡前</option><option value="不適時">不適時</option></select></label>
+      <label class="field full">備註<textarea name="note" maxlength="500" placeholder="例如：量測前有先休息 5 分鐘"></textarea></label>
+      <label class="field full">上傳照片<input name="photo" type="file" accept="image/*"><span class="form-help">可拍攝血壓計螢幕；單張上限 1 MB。</span><img class="photo hidden" alt="上傳照片預覽"></label>
+    <label class="field full">量測日期與時間（台灣時間）<input name="measuredAt" type="datetime-local" required></label>
+  </div><div class="error" role="alert"></div><div class="form-actions"><button class="btn" type="button" data-close>取消</button><button class="btn primary" type="submit">儲存紀錄</button></div></form></dialog>
+  <dialog id="log-dialog"><div class="modal-head"><h2>寫照護隨手記</h2><button class="close" type="button" aria-label="關閉">×</button></div><form id="log-form" class="modal-body"><div class="form-grid"><label class="field full">照護紀錄<textarea name="text" required maxlength="500" placeholder="例如：下午精神不錯，喝水 300 毫升"></textarea></label><label class="field full">上傳照片<input name="photo" type="file" accept="image/*"><span class="form-help">可拍攝餐點或日常照片；單張上限 1 MB。</span><img class="photo hidden" alt="上傳照片預覽"></label></div><div class="error" role="alert"></div><div class="form-actions"><button class="btn" type="button" data-close>取消</button><button class="btn primary">發布紀錄</button></div></form></dialog>
+  <dialog id="medicine-dialog"><div class="modal-head"><h2>新增常備藥物</h2><button class="close" type="button" aria-label="關閉">×</button></div><form id="medicine-form" class="modal-body"><div class="form-grid"><label class="field full">藥物名稱<input name="name" required maxlength="80" placeholder="請參照藥袋填寫"></label><label class="field">服用時機<select name="timing"><option value="飯前">飯前</option><option value="飯後">飯後</option><option value="睡前">睡前</option><option value="依醫囑">依醫囑</option></select></label><label class="field">劑量<input name="dose" required maxlength="80" placeholder="例如：1 顆"></label><label class="field full">藥袋照片<input name="photo" type="file" accept="image/*"><span class="form-help">單張上限 1 MB。</span><img class="photo hidden" alt="藥袋照片預覽"></label></div><div class="error" role="alert"></div><div class="form-actions"><button class="btn" type="button" data-close>取消</button><button class="btn primary">儲存藥物</button></div></form></dialog>
+  <dialog id="appointment-dialog"><div class="modal-head"><h2>編輯回診資訊</h2><button class="close" type="button" aria-label="關閉">×</button></div><form id="appointment-form" class="modal-body"><div class="form-grid"><label class="field full">回診日期<input name="date" type="date" required></label><label class="field full">醫院與科別<input name="department" required maxlength="100" placeholder="例如：臺大醫院・心臟內科"></label><label class="field full">上次醫囑備忘<textarea name="instructions" maxlength="500" placeholder="例如：回診時攜帶血壓紀錄"></textarea></label></div><div class="error" role="alert"></div><div class="form-actions"><button class="btn" type="button" data-close>取消</button><button class="btn primary">儲存資訊</button></div></form></dialog>
+  <div id="toast" class="toast hidden" role="status"></div>
+  <script>
+    'use strict';
+    const checklistItems = [['breakfast','早餐'],['lunch','午餐'],['dinner','晚餐'],['morningMedicine','早上服藥'],['eveningMedicine','晚上服藥'],['bowel','排便正常']];
+    const $ = (s, root = document) => root.querySelector(s);
+    const $$ = (s, root = document) => [...root.querySelectorAll(s)];
+    const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const translations = {
+      '安心照護':'Perawatan Bersama','安心照護｜家人的健康日常':'Perawatan Bersama | Kesehatan Keluarga','一起照顧・一起安心':'Merawat bersama, hati tenang',
+      '主要導覽':'Navigasi utama','照護空間':'RUANG PERAWATAN','今日總覽':'Ringkasan hari ini','照護動態':'Aktivitas perawatan','健康趨勢':'Tren kesehatan','用藥與回診':'Obat dan kontrol',
+      '一起照顧，更安心 ♡':'Merawat bersama lebih tenang ♡','每一筆紀錄，都是給家人最溫暖的報平安。':'Setiap catatan membantu keluarga mengetahui keadaan terkini.',
+      '今日照護總覽':'RINGKASAN HARI INI','今天，也一起好好照顧':'Mari merawat bersama hari ini','▢ 複製今日摘要':'▢ Salin ringkasan hari ini','＋ 記錄數據':'＋ Catat pengukuran',
+      '最新健康數據':'Pengukuran terbaru','查看健康趨勢 →':'Lihat tren kesehatan →','最近照護動態':'Aktivitas terbaru','記下每一份細心的照顧':'Catatan perhatian sehari-hari','查看全部 →':'Lihat semua →',
+      '今日照護打卡':'Daftar perawatan hari ini','點一下，記錄今天的照護進度':'Ketuk untuk mencatat kegiatan hari ini','今日完成進度':'Kemajuan hari ini',
+      '照護小提醒':'Pengingat perawatan','別忘了重要的日子與叮嚀':'Ingat tanggal dan pesan penting','查看 →':'Lihat →','留下今天的照護紀錄':'Tulis catatan hari ini','精神、飲水或其他想分享的事':'Kondisi, minum, atau hal lain','＋ 隨手記':'＋ Catatan',
+      '照護日誌':'JURNAL PERAWATAN','把每個值得分享的日常，留給關心的人。':'Bagikan keseharian kepada orang yang peduli.','＋ 寫照護隨手記':'＋ Tulis catatan perawatan','照護時間軸':'Linimasa perawatan','最新的紀錄會顯示在最上方':'Catatan terbaru ditampilkan paling atas',
+      '健康數據':'DATA KESEHATAN','帶著紀錄回診，和醫師一起了解變化。':'Bawa catatan saat kontrol untuk membahas perubahan dengan dokter.','近 7 天':'7 hari','近 30 天':'30 hari','圖表時間範圍':'Rentang waktu grafik',
+      '圖表載入失敗，請檢查網路連線並重新整理。數據仍可在照護動態中查看。':'Grafik gagal dimuat. Periksa koneksi internet lalu muat ulang. Data tetap dapat dilihat di aktivitas perawatan.',
+      '血壓變化':'Perubahan tekanan darah','收縮壓 / 舒張壓 · mmHg':'Sistolik / diastolik · mmHg','血氧變化':'Perubahan oksigen','血氧濃度 · %':'Saturasi oksigen · %','體溫變化':'Perubahan suhu','攝氏溫度 · °C':'Suhu · °C','血壓趨勢圖':'Grafik tekanan darah','血氧趨勢圖':'Grafik oksigen','體溫趨勢圖':'Grafik suhu',
+      '圖表顯示所選期間內的每筆量測，並非每日平均。數值及警示不能取代醫療判斷。':'Grafik menampilkan setiap pengukuran dalam rentang yang dipilih, bukan rata-rata harian. Angka dan peringatan tidak menggantikan penilaian medis.',
+      '照護資訊':'INFORMASI PERAWATAN','重要資訊放在一起，交接時更放心。':'Simpan informasi penting bersama untuk memudahkan serah terima.','常備藥物':'Obat yang tersedia','用藥請依照醫師或藥師指示':'Gunakan obat sesuai petunjuk dokter atau apoteker','＋ 新增藥物':'＋ Tambah obat','下次回診':'Kontrol berikutnya','記下日期與醫囑，準備更從容':'Catat tanggal dan pesan dokter','編輯':'Ubah',
+      '記錄生理數據':'Catat pengukuran','關閉':'Tutup','量測日期與時間（台灣時間）':'Tanggal dan waktu pengukuran (waktu Taiwan)','收縮壓（mmHg）':'Sistolik (mmHg)','舒張壓（mmHg）':'Diastolik (mmHg)','脈搏（次 / 分）':'Denyut nadi (kali/menit)','血氧（%）':'Oksigen (%)','體溫（°C）':'Suhu (°C)','量測時段':'Waktu pengukuran',
+      '早上':'Pagi','下午':'Sore','睡前':'Sebelum tidur','不適時':'Saat tidak enak badan','備註':'Catatan','上傳照片':'Unggah foto','可拍攝血壓計螢幕；單張上限 1 MB。':'Foto layar alat tekanan darah; maksimal 1 MB per foto.','上傳照片預覽':'Pratinjau foto','取消':'Batal','儲存紀錄':'Simpan catatan',
+      '寫照護隨手記':'Tulis catatan perawatan','照護紀錄':'Catatan perawatan','可拍攝餐點或日常照片；單張上限 1 MB。':'Foto makanan atau kegiatan; maksimal 1 MB per foto.','發布紀錄':'Simpan catatan','新增常備藥物':'Tambah obat','藥物名稱':'Nama obat','服用時機':'Waktu minum obat','飯前':'Sebelum makan','飯後':'Sesudah makan','依醫囑':'Sesuai petunjuk dokter','劑量':'Dosis','藥袋照片':'Foto kemasan obat','單張上限 1 MB。':'Maksimal 1 MB per foto.','藥袋照片預覽':'Pratinjau foto kemasan obat','儲存藥物':'Simpan obat',
+      '編輯回診資訊':'Ubah informasi kontrol','回診日期':'Tanggal kontrol','醫院與科別':'Rumah sakit dan poli','上次醫囑備忘':'Catatan arahan dokter','儲存資訊':'Simpan informasi',
+      '例如 125':'Contoh: 125','例如 78':'Contoh: 78','例如 72':'Contoh: 72','例如 98':'Contoh: 98','例如 36.5':'Contoh: 36.5','例如：量測前有先休息 5 分鐘':'Contoh: beristirahat 5 menit sebelum pengukuran','例如：下午精神不錯，喝水 300 毫升':'Contoh: kondisi baik sore ini, minum 300 ml','請參照藥袋填寫':'Tuliskan sesuai kemasan obat','例如：1 顆':'Contoh: 1 tablet','例如：臺大醫院・心臟內科':'Contoh: Rumah sakit · Poli jantung','例如：回診時攜帶血壓紀錄':'Contoh: bawa catatan tekanan darah saat kontrol',
+      '早餐':'Sarapan','午餐':'Makan siang','晚餐':'Makan malam','早上服藥':'Obat pagi','晚上服藥':'Obat malam','排便正常':'Buang air besar normal',
+      '未來時間':'Waktu mendatang','剛剛':'Baru saja','尚無量測紀錄':'Belum ada pengukuran','⚠ 數值需留意':'⚠ Angka perlu diperhatikan','● 數值平穩':'● Angka stabil','尚無資料':'Belum ada data','血壓':'Tekanan darah','脈搏':'Denyut nadi','血氧':'Oksigen','體溫':'Suhu','次 / 分':'kali/menit','攝氏':'Celsius','⚠ 留意數值':'⚠ Perlu diperhatikan','新增第一筆數據，開始記錄健康狀況。':'Tambahkan pengukuran pertama.',
+      '尚未設定回診':'Belum ada jadwal kontrol','記下下次回診資訊':'Catat jadwal kontrol berikutnya','用藥資訊':'Informasi obat','尚未新增常備藥物':'Belum ada obat yang dicatat','尚未新增藥物資訊。':'Belum ada informasi obat.','尚未填寫':'Belum diisi','尚未設定回診資訊。':'Belum ada informasi kontrol.',
+      '♡ 生理數據':'♡ Pengukuran','✎ 照護隨手記':'✎ Catatan perawatan','辛苦了 ❤️':'Terima kasih ❤️','已看過 👍':'Sudah dibaca 👍','留言':'Kirim','輸入留言':'Masukkan pesan','留一句關心的話…':'Tulis pesan perhatian…','照護紀錄照片':'Foto catatan perawatan','移除':'Hapus','還沒有照護動態，來新增第一筆紀錄吧。':'Belum ada aktivitas. Tambahkan catatan pertama.','收縮壓':'Sistolik','舒張壓':'Diastolik',
+      '請選擇圖片檔案。':'Pilih berkas gambar.','照片超過 1 MB，請縮小圖片後再試。':'Foto melebihi 1 MB. Kecilkan dan coba lagi.','讀取照片失敗，請重新選擇。':'Foto gagal dibaca. Pilih kembali.','請輸入留言內容。':'Masukkan pesan.','請選擇有效且不晚於現在的量測時間。':'Pilih waktu pengukuran yang valid dan tidak di masa depan.','收縮壓必須高於舒張壓，請確認數值。':'Tekanan sistolik harus lebih tinggi daripada diastolik. Periksa kembali.','請輸入照護紀錄。':'Masukkan catatan perawatan.','請填寫藥物名稱及劑量。':'Isi nama dan dosis obat.','請填寫醫院與科別。':'Isi rumah sakit dan poli.','操作失敗，請再試一次。':'Operasi gagal. Silakan coba lagi.',
+      '只記血壓也可以。請至少填寫一項數據；血壓需同時填寫兩個數值。':'Anda boleh mencatat tekanan darah saja. Isi setidaknya satu pengukuran; untuk tekanan darah, isi kedua angka.','未指定':'Tidak ditentukan','未填寫':'Tidak dicatat','請至少填寫一項生理數據。':'Isi setidaknya satu pengukuran.','血壓需同時填寫收縮壓與舒張壓。':'Isi tekanan sistolik dan diastolik sekaligus.','● 已填數值無警示':'● Nilai yang dicatat tanpa peringatan','尚無可判斷的數值':'Belum ada nilai yang dapat diperiksa','僅顯示本筆量測，未填項目不判斷。':'Hanya data pengukuran ini yang ditampilkan; nilai yang kosong tidak diperiksa.',
+      '確定要移除此藥物紀錄嗎？':'Hapus catatan obat ini?','已複製今日摘要，可以貼到 LINE 囉！':'Ringkasan disalin. Silakan tempel di LINE!','無法自動複製，請手動選取並複製以下摘要：':'Tidak dapat menyalin otomatis. Pilih dan salin ringkasan berikut:',
+      '此期間尚無量測資料':'Belum ada data pengukuran pada periode ini','請選擇 JPEG、PNG、GIF 或 WebP 圖片。':'Pilih foto JPEG, PNG, GIF, atau WebP.'
+      ,'成員管理':'Kelola anggota','所有成員可查看及編輯照護資料；只有管理員可以管理成員。':'Semua anggota dapat melihat dan mengubah data; hanya admin yang dapat mengelola anggota.','新增或更新成員':'Tambah atau ubah anggota','LINE 使用者 ID':'ID pengguna LINE','稱呼':'Nama','權限':'Peran','一般成員':'Anggota','管理員':'Admin','儲存成員':'Simpan anggota','已授權成員':'Anggota yang diizinkan',
+      '正在確認 LINE 登入與存取權限…':'Memeriksa login LINE dan izin akses…','請將您的 LINE 使用者 ID 提供給管理員，以加入白名單：':'Berikan ID pengguna LINE Anda kepada admin untuk mendapatkan akses:','登入或連線失敗，請檢查網路設定後重新整理。':'Login atau koneksi gagal. Periksa jaringan dan muat ulang.','連線失敗，資料尚未更新。請檢查網路後重試。':'Koneksi gagal; data belum diperbarui. Periksa jaringan dan coba lagi.','帳號未獲授權，請重新整理並聯絡管理員。':'Akun tidak memiliki akses. Muat ulang dan hubungi admin.','資料已儲存':'Data disimpan','留言已儲存':'Pesan disimpan','無法更新成員，請確認資料並保留至少一位管理員。':'Tidak dapat memperbarui anggota. Periksa data dan pastikan setidaknya ada satu admin.','確認移除此成員？':'Hapus anggota ini?','無法載入成員，請稍後重試。':'Tidak dapat memuat anggota. Coba lagi nanti.','資料更新中，請稍候。':'Data sedang diperbarui, harap tunggu.',
+      '警示僅依範例門檻檢查收縮壓、血氧與體溫，不檢查舒張壓及脈搏；無警示不代表醫療判斷。數據僅供照護紀錄與溝通，如有不適或疑慮，請聯絡醫療專業人員；如有緊急狀況請立即撥打 119。':'Peringatan hanya memeriksa tekanan sistolik, oksigen, dan suhu berdasarkan ambang contoh, bukan diastolik atau denyut nadi. Tidak ada peringatan bukan penilaian medis. Jika ada keluhan, hubungi tenaga medis; dalam keadaan darurat di Taiwan, hubungi 119.'
+      ,'同步失敗，無法確認是否已儲存。請重新整理確認後再試。':'Sinkronisasi gagal; penyimpanan belum dapat dipastikan. Muat ulang dan periksa sebelum mencoba lagi.','資料格式不正確，請確認後重試。':'Format data tidak valid. Periksa dan coba lagi.','管理員權限已移除。':'Hak admin telah dicabut.'
+    };
+    const languageKey = 'care-together-language-v1';
+    let language = 'zh';
+    try { language = localStorage.getItem(languageKey) === 'id' ? 'id' : 'zh'; } catch (error) { console.error('Cannot read language preference', error); }
+    const t = text => language === 'id' && Object.hasOwn(translations, text) ? translations[text] : text;
+    const locale = () => language === 'id' ? 'id-ID' : 'zh-TW';
+    const staticText = [];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (!node.parentElement.closest('script,style') && node.nodeValue.trim()) staticText.push([node,node.nodeValue]);
+    }
+    const staticAttrs = [];
+    $$('[placeholder],[aria-label],[alt]').forEach(el => ['placeholder','aria-label','alt'].forEach(attr => { if(el.hasAttribute(attr)) staticAttrs.push([el,attr,el.getAttribute(attr)]); }));
+    function translateStatic() {
+      document.documentElement.lang = language === 'id' ? 'id' : 'zh-Hant';
+      document.title = t('安心照護｜家人的健康日常');
+      staticText.forEach(([node,original]) => { const trimmed=original.trim(); node.nodeValue=original.replace(trimmed,t(trimmed)); });
+      staticAttrs.forEach(([el,attr,original]) => el.setAttribute(attr,t(original)));
+      $('#language').value=language;
+    }
+    const uid = () => crypto.randomUUID();
+    function taiwanParts(d = new Date()) { return Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d).map(part=>[part.type,part.value])); }
+    function localDate(d = new Date()) { const p=taiwanParts(d); return `${p.year}-${p.month}-${p.day}`; }
+    function localDateTime(d = new Date()) { const p=taiwanParts(d); return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}`; }
+    let data = {records:[],checklists:{},logs:[],comments:{},reactions:{},medicines:[],appointment:null};
+    let session = null, busy = false, authMessage = '正在確認 LINE 登入與存取權限…', authUserId = '';
+    let currentPage = 'home', chartDays = 7, charts = [];
+    async function api(action,payload={}) {
+      const token=liff.getIDToken();
+      if(!token) throw new Error('unauthorized');
+      const response=await fetch('/api/care',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({action,payload}),cache:'no-store'});
+      const result=await response.json();
+      if(!response.ok) { const error=new Error(result.error || 'network'); error.userId=result.userId; throw error; }
+      return result;
+    }
+    function syncError(error) {
+      const denied=error.message==='forbidden'||error.message==='unauthorized';
+      const message=denied ? '帳號未獲授權，請重新整理並聯絡管理員。' : error.message==='invalid' ? '資料格式不正確，請確認後重試。' : '同步失敗，無法確認是否已儲存。請重新整理確認後再試。';
+      if(denied) { session=null; data={records:[],checklists:{},logs:[],comments:{},reactions:{},medicines:[],appointment:null}; $('#app').classList.add('hidden'); authMessage=message; authUserId=''; showAuthMessage(); $('#auth-status').classList.remove('hidden'); }
+      $('#sync-status').textContent=t(message); $('#sync-status').classList.remove('hidden');
+    }
+    async function update(action,payload) {
+      if(busy) { toast('資料更新中，請稍候。'); return false; }
+      busy=true;
+      try { data=await api(action,payload); $('#sync-status').classList.add('hidden'); render(); return true; }
+      catch(error) { syncError(error); return false; }
+      finally { busy=false; }
+    }
+    function toast(message) { const el = $('#toast'); el.textContent = t(message); el.classList.remove('hidden'); clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.add('hidden'),3000); }
+    function fmtDate(date, withTime = true) { return new Intl.DateTimeFormat(locale(), withTime ? {timeZone:'Asia/Taipei',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false} : {timeZone:'Asia/Taipei',year:'numeric',month:'numeric',day:'numeric'}).format(new Date(date)); }
+    function relative(date) { const mins = Math.floor((Date.now()-new Date(date).getTime())/60000); if (mins < 0) return t('未來時間'); if (mins < 1) return t('剛剛'); if (mins < 60) return language==='id' ? `${mins} menit lalu` : `${mins} 分鐘前`; const hours = Math.floor(mins/60); if (hours < 24) return language==='id' ? `${hours} jam lalu` : `${hours} 小時前`; const days=Math.floor(hours/24); return language==='id' ? `${days} hari lalu` : `${days} 天前`; }
+    const hasValue = value => value !== null && value !== undefined;
+    function abnormal(r) { return (hasValue(r.systolic) && (r.systolic >= 140 || r.systolic <= 90)) || (hasValue(r.spo2) && r.spo2 < 95) || (hasValue(r.temperature) && r.temperature >= 37.5); }
+    function hasAlertValues(r) { return hasValue(r.systolic) || hasValue(r.spo2) || hasValue(r.temperature); }
+    function bpValue(r) { return hasValue(r.systolic) && hasValue(r.diastolic) ? `${r.systolic}/${r.diastolic}` : null; }
+    function tempValue(r) { return hasValue(r.temperature) ? r.temperature.toFixed(1) : null; }
+    function displayValue(value, unit='') { return hasValue(value) ? `${value}${unit}` : t('未填寫'); }
+    function latest() { return [...data.records].sort((a,b) => new Date(b.measuredAt)-new Date(a.measuredAt))[0]; }
+    function metric(label, value, unit, warn, foot) { return `<div class="metric"><div class="metric-label">${t(label)}</div><div class="metric-value ${warn?'alert':''} ${!hasValue(value)?'metric-missing':''}">${escapeHtml(displayValue(value))} <span class="unit">${hasValue(value)?unit:''}</span></div><div class="metric-foot">${hasValue(value)?t(warn?'⚠ 留意數值':foot):'&nbsp;'}</div></div>`; }
+    function renderHome() {
+      $('#today-label').textContent = new Intl.DateTimeFormat(locale(),{timeZone:'Asia/Taipei',year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(new Date());
+      const r = latest();
+      $('#latest-time').textContent = r ? `${language==='id'?'Pengukuran terakhir':'上次量測'} · ${relative(r.measuredAt)}（${fmtDate(r.measuredAt)}）` : t('尚無量測紀錄');
+      $('#status-tag').className = `tag ${r ? (abnormal(r)?'warning':hasAlertValues(r)?'':'neutral') : 'neutral'}`;
+      $('#status-tag').textContent = t(r ? (abnormal(r)?'⚠ 數值需留意':hasAlertValues(r)?'● 已填數值無警示':'尚無可判斷的數值') : '尚無資料');
+      $('#metrics').innerHTML = r ? metric('血壓',bpValue(r),'',hasValue(r.systolic)&&(r.systolic>=140||r.systolic<=90),'mmHg') + metric('脈搏',r.pulse,'',false,'次 / 分') + metric('血氧',r.spo2,'%',hasValue(r.spo2)&&r.spo2<95,'SpO₂') + metric('體溫',tempValue(r),'°C',hasValue(r.temperature)&&r.temperature>=37.5,'攝氏') : `<p class="empty">${t('新增第一筆數據，開始記錄健康狀況。')}</p>`;
+      $('#latest-period').textContent = r ? `${r.period ? `◷ ${language==='id'?'Pengukuran '+t(r.period):r.period+'量測'} · ` : ''}${t('僅顯示本筆量測，未填項目不判斷。')}${r.note ? ' · '+r.note : ''}` : '';
+      const checks = data.checklists[localDate()] || {};
+      const count = checklistItems.filter(([key]) => checks[key]).length;
+      $('#check-count').textContent = `${count} / 6 ${language==='id'?'selesai':'已完成'}`;
+      $('#checklist').innerHTML = checklistItems.map(([key,label]) => `<button class="check ${checks[key]?'done':''}" data-check="${key}" aria-pressed="${!!checks[key]}"><span class="check-mark">✓</span>${t(label)}</button>`).join('');
+      $('#progress').style.width = `${count/6*100}%`;
+      $('#progress-label').textContent = `${Math.round(count/6*100)}%`;
+      const ap = data.appointment;
+      $('#care-preview').innerHTML = `<div class="info-row"><span class="info-icon">🗓</span><div><strong>${ap ? escapeHtml(fmtDate(ap.date+'T12:00:00+08:00',false)) : t('尚未設定回診')}</strong><p>${ap ? escapeHtml(ap.department) : t('記下下次回診資訊')}</p></div></div><div class="info-row"><span class="info-icon">💊</span><div><strong>${t('用藥資訊')}</strong><p>${data.medicines.length ? (language==='id'?`${data.medicines.length} obat tercatat`:`已記錄 ${data.medicines.length} 項常備藥物`) : t('尚未新增常備藥物')}</p></div></div>`;
+    }
+    function timelineItems() {
+      return [...data.records.map(item => ({...item,type:'record',at:item.measuredAt})),...data.logs.map(item => ({...item,type:'log',at:item.createdAt}))].sort((a,b) => new Date(b.at)-new Date(a.at));
+    }
+    function timelineMarkup(item) {
+      const id = escapeHtml(item.id), comments = data.comments[item.id] || [], reactions = data.reactions[item.id] || {};
+      const details = item.type === 'record' ? `<div class="timeline-metrics">${t('血壓')} ${displayValue(bpValue(item),' mmHg')} · ${t('脈搏')} ${displayValue(item.pulse,' '+t('次 / 分'))}<br>${t('血氧')} ${displayValue(item.spo2,'%')} · ${t('體溫')} ${displayValue(tempValue(item),'°C')} ${abnormal(item)?`<span class="tag warning">${t('⚠ 數值需留意')}</span>`:''}</div>${item.note?`<p class="timeline-text">${escapeHtml(item.note)}</p>`:''}` : `<p class="timeline-text">${escapeHtml(item.text)}</p>`;
+      return `<article class="timeline-item" data-type="${item.type}"><span class="dot"></span><div class="timeline-top"><span class="timeline-title">${item.type==='record'?t('♡ 生理數據')+(item.period?' · '+escapeHtml(t(item.period)):''):t('✎ 照護隨手記')}</span><span class="time">${escapeHtml(fmtDate(item.at))}</span></div>${details}${item.photo?`<img class="photo" src="${escapeHtml(item.photo)}" alt="${t('照護紀錄照片')}">`:''}<div class="reactions"><button class="reaction ${reactions.thanks?'selected':''}" data-react="thanks" data-id="${id}" aria-pressed="${!!reactions.thanks}">${t('辛苦了 ❤️')}</button><button class="reaction ${reactions.seen?'selected':''}" data-react="seen" data-id="${id}" aria-pressed="${!!reactions.seen}">${t('已看過 👍')}</button></div><div class="comments">${comments.map(c=>`<div>💬 ${escapeHtml(c.text)} <span class="time"> ${escapeHtml(fmtDate(c.createdAt))}</span></div>`).join('')}</div><form class="comment-form" data-id="${id}"><input name="comment" required maxlength="200" aria-label="${t('輸入留言')}" placeholder="${t('留一句關心的話…')}"><button class="btn small" type="submit">${t('留言')}</button></form></article>`;
+    }
+    function renderTimeline() {
+      const drafts=$$('.comment-form').map(form=>({id:form.dataset.id,container:form.closest('#home-timeline')?'home-timeline':'all-timeline',value:form.elements.comment.value,operationId:form.dataset.operationId}));
+      const items=timelineItems(); const empty=`<p class="empty">${t('還沒有照護動態，來新增第一筆紀錄吧。')}</p>`;
+      $('#home-timeline').innerHTML=items.length?items.slice(0,2).map(timelineMarkup).join(''):empty;
+      $('#all-timeline').innerHTML=items.length?items.map(timelineMarkup).join(''):empty;
+      drafts.forEach(draft=>{ const form=$(`#${draft.container} .comment-form[data-id="${CSS.escape(draft.id)}"]`); if(form){form.elements.comment.value=draft.value;if(draft.operationId)form.dataset.operationId=draft.operationId;} });
+    }
+    function renderCare() {
+      $('#medicine-list').innerHTML = data.medicines.length ? data.medicines.map(m=>`<div class="info-row"><span class="info-icon">💊</span><div style="flex:1;min-width:0"><strong>${escapeHtml(m.name)}</strong><p>${escapeHtml(t(m.timing))} · ${escapeHtml(m.dose)}</p>${m.photo?`<img class="photo" src="${escapeHtml(m.photo)}" alt="${t('藥袋照片')}">`:''}<button class="text-button" data-remove-medicine="${escapeHtml(m.id)}">${t('移除')}</button></div></div>`).join('') : `<p class="empty">${t('尚未新增藥物資訊。')}</p>`;
+      const ap=data.appointment;
+      $('#appointment').innerHTML=ap?`<div class="info-row"><span class="info-icon">🗓</span><div><strong>${escapeHtml(fmtDate(ap.date+'T12:00:00+08:00',false))}</strong><p>${escapeHtml(ap.department)}</p></div></div><div class="info-row"><span class="info-icon">✎</span><div><strong>${t('上次醫囑備忘')}</strong><p style="white-space:pre-wrap;overflow-wrap:anywhere">${escapeHtml(ap.instructions || t('尚未填寫'))}</p></div></div>`:`<p class="empty">${t('尚未設定回診資訊。')}</p>`;
+    }
+    function renderCharts() {
+      charts.forEach(chart=>chart.destroy()); charts=[];
+      const start = new Date(`${localDate()}T00:00:00+08:00`); start.setUTCDate(start.getUTCDate()-(chartDays-1));
+      const records = data.records.filter(r => new Date(r.measuredAt)>=start && new Date(r.measuredAt)<=new Date()).sort((a,b)=>new Date(a.measuredAt)-new Date(b.measuredAt));
+      [['#bp-chart',r=>hasValue(r.systolic)&&hasValue(r.diastolic)],['#spo2-chart',r=>hasValue(r.spo2)],['#temp-chart',r=>hasValue(r.temperature)]].forEach(([selector,predicate])=>{
+        const wrap=$(selector).parentElement;
+        let message=$('.chart-empty',wrap);
+        if(!message) { message=document.createElement('p'); message.className='chart-empty'; wrap.appendChild(message); }
+        message.textContent=t('此期間尚無量測資料');
+        message.classList.toggle('hidden',records.some(predicate));
+      });
+      if (typeof Chart === 'undefined') { $('#chart-error').classList.remove('hidden'); return; }
+      $('#chart-error').classList.add('hidden');
+      const labels=records.map(r=>fmtDate(r.measuredAt));
+      const makeDataset=(label,values,color)=>({label:t(label),data:values.map(value=>hasValue(value)?value:null),spanGaps:true,borderColor:color,backgroundColor:color,pointRadius:4,pointHoverRadius:6,tension:.25,borderWidth:2});
+      const common={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{usePointStyle:true,boxWidth:7,color:'#72867a',font:{size:11}}},tooltip:{enabled:true}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:5,color:'#9aa99e',font:{size:10}}},y:{grid:{color:'#eef2ed'},ticks:{color:'#9aa99e',font:{size:10}}}}};
+      const make=(selector,datasets) => charts.push(new Chart($(selector),{type:'line',data:{labels,datasets},options:structuredClone(common)}));
+      make('#bp-chart',[makeDataset('收縮壓',records.map(r=>r.systolic),'#548f72'),makeDataset('舒張壓',records.map(r=>r.diastolic),'#d0a878')]);
+      make('#spo2-chart',[makeDataset('血氧',records.map(r=>r.spo2),'#6b9b9a')]);
+      make('#temp-chart',[makeDataset('體溫',records.map(r=>r.temperature),'#d6a27d')]);
+    }
+    function render() { renderHome(); renderTimeline(); renderCare(); if(currentPage==='trends') renderCharts(); }
+    function navigate(page) { currentPage=page; $$('.page').forEach(el=>el.classList.toggle('hidden',el.id!==page)); $$('.nav-button').forEach(el=>el.classList.toggle('active',el.dataset.page===page)); if(page==='trends') renderCharts(); if(page==='admin') loadMembers(); window.scrollTo({top:0,behavior:'smooth'}); }
+    function resetForm(form) { form.reset(); form.dataset.operationId=uid(); $('.error',form).textContent=''; const preview=$('.photo',form); if(preview){preview.removeAttribute('src');preview.classList.add('hidden');} }
+    function openDialog(id) { const dialog=$('#'+id); const form=$('form',dialog); resetForm(form); if(id==='record-dialog') form.elements.measuredAt.value=localDateTime(); if(id==='appointment-dialog' && data.appointment) { form.elements.date.value=data.appointment.date; form.elements.department.value=data.appointment.department; form.elements.instructions.value=data.appointment.instructions; } dialog.showModal(); }
+    function readPhoto(form) { const input=form.elements.photo; if(!input || !input.files.length) return Promise.resolve(''); const file=input.files[0]; if(!['image/jpeg','image/png','image/gif','image/webp'].includes(file.type)) return Promise.reject(new Error('請選擇 JPEG、PNG、GIF 或 WebP 圖片。')); if(file.size>1024*1024) return Promise.reject(new Error('照片超過 1 MB，請縮小圖片後再試。')); return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('讀取照片失敗，請重新選擇。'));reader.readAsDataURL(file);}); }
+    document.addEventListener('change',async event=>{ if(event.target.matches('input[type=file]')) { const form=event.target.form, preview=$('.photo',form), error=$('.error',form); try { const photo=await readPhoto(form); preview.src=photo; preview.classList.toggle('hidden',!photo); error.textContent=''; } catch(e) { event.target.value=''; preview.removeAttribute('src');preview.classList.add('hidden'); error.textContent=t(e.message); } } });
+    document.addEventListener('click',async event=>{
+      const nav=event.target.closest('[data-page], [data-go]'); if(nav) { navigate(nav.dataset.page || nav.dataset.go); return; }
+      const open=event.target.closest('[data-open]'); if(open) { openDialog(open.dataset.open); return; }
+      if(event.target.closest('.close, [data-close]')) { event.target.closest('dialog').close(); return; }
+      const check=event.target.closest('[data-check]'); if(check) { const day=localDate(),item=check.dataset.check; await update('check_set',{day,item,done:!(data.checklists[day]||{})[item]}); return; }
+      const react=event.target.closest('[data-react]'); if(react) { const {id,react:kind}=react.dataset; await update('reaction_set',{targetId:id,targetType:react.closest('article').dataset.type,kind,selected:!(data.reactions[id]||{})[kind]}); return; }
+      const remove=event.target.closest('[data-remove-medicine]'); if(remove) { if(confirm(t('確定要移除此藥物紀錄嗎？'))) await update('medicine_remove',{id:remove.dataset.removeMedicine}); return; }
+      const removeMember=event.target.closest('[data-remove-member]'); if(removeMember) { if(confirm(t('確認移除此成員？'))) { try { await api('member_remove',{userId:removeMember.dataset.removeMember}); await loadMembers(); } catch(error) { $('#member-error').textContent=t('無法更新成員，請確認資料並保留至少一位管理員。'); } } return; }
+      const range=event.target.closest('[data-days]'); if(range) { chartDays=Number(range.dataset.days); $$('[data-days]').forEach(b=>b.classList.toggle('active',b===range)); renderCharts(); return; }
+      if(event.target.closest('#edit-appointment')) openDialog('appointment-dialog');
+    });
+    document.addEventListener('submit',async event=>{
+      const form=event.target; event.preventDefault();
+      if(form.matches('.comment-form')) { const text=form.elements.comment.value.trim(); if(!text){form.elements.comment.setCustomValidity(t('請輸入留言內容。'));form.elements.comment.reportValidity();form.elements.comment.setCustomValidity('');return;} form.dataset.operationId ||= uid(); const container=form.closest('#home-timeline')?'home-timeline':'all-timeline', targetId=form.dataset.id; if(await update('comment_add',{id:form.dataset.operationId,targetId,targetType:form.closest('article').dataset.type,text})) { const current=$(`#${container} .comment-form[data-id="${CSS.escape(targetId)}"]`); if(current) { current.reset(); delete current.dataset.operationId; } toast('留言已儲存'); } return; }
+      if(form.id==='member-form') { const error=$('#member-error'); error.textContent=''; try { await api('member_save',{userId:form.elements.userId.value.trim(),name:form.elements.name.value.trim(),isAdmin:form.elements.role.value==='admin'}); form.reset(); await loadMembers(); toast('資料已儲存'); } catch(e) { error.textContent=t('無法更新成員，請確認資料並保留至少一位管理員。'); } return; }
+      const error=$('.error',form); error.textContent='';
+      try {
+        if(form.id==='record-form') {
+          const measuredAt=new Date(`${form.elements.measuredAt.value}+08:00`);
+          if(Number.isNaN(measuredAt.getTime()) || measuredAt > new Date()) throw new Error('請選擇有效且不晚於現在的量測時間。');
+          const numberOrNull = name => form.elements[name].value === '' ? null : Number(form.elements[name].value);
+          const systolic=numberOrNull('systolic'),diastolic=numberOrNull('diastolic'),pulse=numberOrNull('pulse'),spo2=numberOrNull('spo2'),temperature=numberOrNull('temperature');
+          if(![systolic,diastolic,pulse,spo2,temperature].some(hasValue)) throw new Error('請至少填寫一項生理數據。');
+          if(hasValue(systolic)!==hasValue(diastolic)) throw new Error('血壓需同時填寫收縮壓與舒張壓。');
+          if(hasValue(systolic) && systolic<=diastolic) throw new Error('收縮壓必須高於舒張壓，請確認數值。');
+          const photo=await readPhoto(form);
+          if(!await update('record_add',{id:form.dataset.operationId,measuredAt:measuredAt.toISOString(),systolic,diastolic,pulse,spo2,temperature,period:form.elements.period.value,note:form.elements.note.value.trim(),photo})) return;
+        } else if(form.id==='log-form') {
+          const text=form.elements.text.value.trim(); if(!text) throw new Error('請輸入照護紀錄。'); const photo=await readPhoto(form);
+          if(!await update('log_add',{id:form.dataset.operationId,text,photo})) return;
+        } else if(form.id==='medicine-form') {
+          const name=form.elements.name.value.trim(),dose=form.elements.dose.value.trim(); if(!name||!dose) throw new Error('請填寫藥物名稱及劑量。'); const photo=await readPhoto(form);
+          if(!await update('medicine_add',{id:form.dataset.operationId,name,timing:form.elements.timing.value,dose,photo})) return;
+        } else if(form.id==='appointment-form') {
+          const department=form.elements.department.value.trim(); if(!department) throw new Error('請填寫醫院與科別。');
+          if(!await update('appointment_save',{date:form.elements.date.value,department,instructions:form.elements.instructions.value.trim()})) return;
+        } else return;
+        form.closest('dialog').close(); toast('資料已儲存');
+      } catch(e) { error.textContent=t(e.message || '操作失敗，請再試一次。'); }
+    });
+    function summary() {
+      const today=localDate(), r=[...data.records].filter(x=>localDate(new Date(x.measuredAt))===today).sort((a,b)=>new Date(b.measuredAt)-new Date(a.measuredAt))[0], checks=data.checklists[today]||{};
+      const line=keys=>keys.map(key=>{const label=checklistItems.find(i=>i[0]===key)[1];return `${checks[key]?'✅':'⬜'} ${t(label)}`;}).join('  ');
+      if(language==='id') return `🌿 Ringkasan perawatan hari ini (${fmtDate(new Date(),false)})\n\n${r?`🩺 Pengukuran terbaru (${fmtDate(r.measuredAt)})\nTekanan darah ${displayValue(bpValue(r),' mmHg')}｜Denyut nadi ${displayValue(r.pulse,' kali/menit')}\nOksigen ${displayValue(r.spo2,'%')}｜Suhu ${displayValue(tempValue(r),'°C')}${abnormal(r)?'\n⚠️ Angka perlu diperhatikan, ikuti arahan dokter.':''}`:'🩺 Belum ada pengukuran hari ini'}\n\n🍚 Makan\n${line(['breakfast','lunch','dinner'])}\n💊 Obat\n${line(['morningMedicine','eveningMedicine'])}\n🚽 ${checks.bowel?'✅':'⬜'} Buang air besar normal\n\n💚 Merawat bersama, hati lebih tenang`;
+      return `🌿 今日照護摘要（${fmtDate(new Date(),false)}）\n\n${r?`🩺 最新量測（${fmtDate(r.measuredAt)}）\n血壓 ${displayValue(bpValue(r),' mmHg')}｜脈搏 ${displayValue(r.pulse,' 次/分')}\n血氧 ${displayValue(r.spo2,'%')}｜體溫 ${displayValue(tempValue(r),'°C')}${abnormal(r)?'\n⚠️ 數值需留意，請參考醫囑。':''}`:'🩺 今天尚無量測紀錄'}\n\n🍚 用餐\n${line(['breakfast','lunch','dinner'])}\n💊 服藥\n${line(['morningMedicine','eveningMedicine'])}\n🚽 ${checks.bowel?'✅':'⬜'} 排便正常\n\n💚 一起關心，讓照顧更安心`;
+    }
+    $('#copy-summary').addEventListener('click',async()=>{
+      const text=summary();
+      try {
+        if(navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(text);
+        else { const area=document.createElement('textarea'); area.value=text; area.style.position='fixed';area.style.left='-9999px';document.body.appendChild(area);area.select();const copied=document.execCommand('copy');area.remove();if(!copied) throw new Error('無法存取剪貼簿'); }
+        toast('已複製今日摘要，可以貼到 LINE 囉！');
+      } catch(e) { window.prompt(t('無法自動複製，請手動選取並複製以下摘要：'),text); }
+    });
+    $('#language').addEventListener('change', event => {
+      language = event.target.value;
+      try { localStorage.setItem(languageKey, language); } catch (error) { alert(language==='id' ? 'Bahasa berubah, tetapi preferensi tidak dapat disimpan di browser.' : '語言已切換，但無法將偏好儲存在瀏覽器。'); }
+      translateStatic();
+      if(!$('#auth-status').classList.contains('hidden')) showAuthMessage();
+      render();
+    });
+    async function loadMembers() {
+      try {
+        const members=await api('members');
+        $('#member-error').textContent='';
+        $('#member-list').innerHTML=members.map(member=>`<div class="info-row"><div style="flex:1;min-width:0"><strong>${escapeHtml(member.name)}</strong><p style="overflow-wrap:anywhere">${escapeHtml(member.userId)} · ${t(member.isAdmin?'管理員':'一般成員')}</p></div><button class="btn small danger" data-remove-member="${escapeHtml(member.userId)}">${t('移除')}</button></div>`).join('');
+      } catch(error) {
+        if(error.message==='forbidden') {
+          try { session=await api('session'); if(!session.isAdmin) { $('#admin-nav').classList.add('hidden'); navigate('home'); toast('管理員權限已移除。'); return; } }
+          catch(authError) { syncError(authError); return; }
+        }
+        $('#member-error').textContent=t('無法載入成員，請稍後重試。');
+      }
+    }
+    function showAuthMessage() {
+      const status=$('#auth-status'); status.textContent=t(authMessage);
+      if(authUserId) { const id=document.createElement('p'); id.style.overflowWrap='anywhere'; id.textContent=authUserId; status.appendChild(id); }
+    }
+    async function start() {
+      try {
+        const response=await fetch('/api/config',{cache:'no-store'});
+        if(!response.ok) throw new Error('configuration');
+        const config=await response.json();
+        await liff.init({liffId:config.liffId});
+        if(!liff.isLoggedIn()) { liff.login({redirectUri:location.origin+location.pathname}); return; }
+        session=await api('session');
+        data=await api('state');
+        $('#admin-nav').classList.toggle('hidden',!session.isAdmin);
+        $('#auth-status').classList.add('hidden');
+        $('#app').classList.remove('hidden');
+        render();
+      } catch(error) {
+        if(error.message==='forbidden' && error.userId) {
+          authMessage='請將您的 LINE 使用者 ID 提供給管理員，以加入白名單：'; authUserId=error.userId;
+        } else { authMessage='登入或連線失敗，請檢查網路設定後重新整理。'; authUserId=''; }
+        showAuthMessage();
+      }
+    }
+    async function refresh() {
+      if(!session || busy || document.hidden || $('dialog[open]') || $$('.comment-form input').some(input=>input.value.trim()) || currentPage==='admin') return;
+      busy=true;
+      try { const latest=await api('state'); if(!$('dialog[open]') && !$$('.comment-form input').some(input=>input.value.trim())) { data=latest; render(); } $('#sync-status').classList.add('hidden'); }
+      catch(error) { syncError(error); }
+      finally { busy=false; }
+    }
+    translateStatic();
+    start();
+    setInterval(refresh,30000);
+  </script>
+</body>
+</html>
