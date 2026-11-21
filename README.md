@@ -1,11 +1,11 @@
-# 安心照護：Cloudflare Pages + LINE LIFF + Supabase
+# 安心照護：Cloudflare Workers + LINE LIFF + Supabase
 
 這個專案供一位長輩的照護團隊使用。白名單成員均可查看及編輯照護資料，管理員另外可以新增、修改或移除成員。尚未加入血糖功能。
 
 ## 架構與安全邊界
 
 - `public/`：手機優先的雙語介面。LINE LIFF 登入後，瀏覽器以 LINE ID Token 呼叫同網域的 `/api/care`。
-- `functions/api/`：Cloudflare Pages Functions。每次請求均由伺服器向 LINE 驗證 ID Token，並由資料庫再次確認白名單；不能只相信前端提供的 LINE User ID。
+- `worker.js` 與 `functions/api/`：Cloudflare Worker API 路由及處理函式。每次請求均由伺服器向 LINE 驗證 ID Token，並由資料庫再次確認白名單；不能只相信前端提供的 LINE User ID。
 - `supabase/schema.sql`：資料表及交易式 API。啟用 RLS，撤銷 `anon`、`authenticated` 的直接存取，僅供後端使用的 `service_role` 執行。
 - Supabase **secret key 只放在 Cloudflare 伺服器端 secret**，不得放在網頁、Git、聊天訊息或日誌中。每個 LINE ID Token 也應視為敏感資料。
 
@@ -23,24 +23,24 @@
 ### 2. 建立 LINE Login 與 LIFF
 
 1. 在 LINE Developers 建立 LINE Login channel，建立 LIFF 應用程式；啟用 **`openid` scope**，讓 LIFF 能取得 ID Token。
-2. LIFF Endpoint URL 設定為部署後的 Cloudflare Pages HTTPS 根網址，例如 `https://你的專案.pages.dev/`。登入跳轉網址與實際部署環境應一致。
+2. LIFF Endpoint URL 設定為部署後的 Cloudflare Workers HTTPS 根網址，例如 `https://你的專案.workers.dev/`。登入跳轉網址與實際部署環境應一致。
 3. 記下 **LIFF ID** 與該 LINE Login channel 的 **Channel ID**。它們是不同的值。
 4. 如要讓 channel 開發者／測試者以外的家人使用，請依 LINE 後台要求發布 channel；首次使用者可能需要登入或授權，不能保證永遠免操作。
 
-### 3. 部署 Cloudflare Pages
+### 3. 部署 Cloudflare Workers
 
-使用 Git 整合（或 Wrangler 部署），將本專案根目錄作為專案根目錄：
+使用 Workers 的 Git 整合，將本專案根目錄作為專案根目錄：
 
 - Build command：留空。
-- Build output directory：`public`。
-- `functions/` 必須保留在專案根目錄；Pages 會編譯 Functions。**Cloudflare 網頁後台的直接上傳不支援此專案所需的 Functions**。
-- 在 Pages 專案的環境變數／secrets 設定：
+- Deploy command：`npx wrangler deploy`。
+- `wrangler.jsonc` 指定 Worker 程式與 `public` 靜態檔案目錄；`worker.js` 將 API 請求轉送至 `functions/api/` 的處理函式。
+- 在 Worker 的環境變數／secrets 設定：
   - 本專案已預設使用 LIFF ID `2012741362-xQV1Y9gJ` 與 LINE Login Channel ID `2012741362`；如要使用其他 LIFF/channel，可用 `LIFF_ID`、`LINE_CHANNEL_ID` 環境變數覆寫。兩者皆為公開識別碼，不是秘密。
   - `SUPABASE_URL`：Supabase Project URL。
     - 本版本僅接受官方 `https://*.supabase.co` Project URL，不接受自訂 Supabase 網域。
   - `SUPABASE_SECRET_KEY`：Supabase secret key，設定為 **secret**，不要放在前端。
 
-設定完成後重新部署，並確認 `https://你的專案.pages.dev/api/config` 有回傳 LIFF ID；不要對外分享 secret。正式環境與預覽環境請使用獨立設定，尤其不要讓公開預覽部署連到正式健康資料庫。
+設定完成後重新部署，並確認 `https://你的專案.workers.dev/api/config` 有回傳 LIFF ID；不要對外分享 secret。正式環境與預覽環境請使用獨立設定，尤其不要讓公開預覽部署連到正式健康資料庫。若使用 Pages，需透過 Git 整合或 Wrangler 部署，使根目錄的 `functions/` 被編譯；網頁後台直接上傳不支援 Functions。
 
 ### 4. 初始化第一位管理員
 
@@ -60,8 +60,8 @@
 - `npm test`：執行不需第三方帳號的 API 單元測試。
 - `tests/database.sql`：在**隔離的測試資料庫**套用 schema 並建立 Supabase 的 `anon`、`authenticated`、具 `BYPASSRLS` 的 `service_role` 測試角色後執行；測試交易會回滾。
 - 既有單檔原型的 localStorage 資料**不會自動匯入** Supabase。
-- 請使用部署後的 HTTPS 網址開啟；直接以 `file://` 開啟 HTML 無法執行 LIFF 驗證及 Pages Functions。
+- 請使用部署後的 HTTPS 網址開啟；直接以 `file://` 開啟 HTML 無法執行 LIFF 驗證及後端 API。
 - 前端在頁面開啟且沒有編輯草稿時約每 30 秒更新。照片與完整時間軸目前隨資料同步，資料量增加會影響速度及資料庫容量；正式長期使用前應加入分頁與 Supabase Storage 私有物件存放。
 - 因含健康資料，上線前應完成授權管理、資訊安全審查、備份與復原演練、法規及個資處理評估，並在真實 LINE、Cloudflare、Supabase 環境測試。此專案不提供醫療診斷或緊急監測。
 
-參考：[LINE LIFF 文件](https://developers.line.biz/en/docs/liff/) · [LINE ID Token 驗證](https://developers.line.biz/en/reference/line-login/#verify-id-token) · [Cloudflare Pages Functions](https://developers.cloudflare.com/pages/functions/get-started/) · [Supabase API keys](https://supabase.com/docs/guides/getting-started/api-keys)
+參考：[LINE LIFF 文件](https://developers.line.biz/en/docs/liff/) · [LINE ID Token 驗證](https://developers.line.biz/en/reference/line-login/#verify-id-token) · [Cloudflare Workers 靜態檔案設定](https://developers.cloudflare.com/workers/static-assets/binding/) · [Supabase API keys](https://supabase.com/docs/guides/getting-started/api-keys)

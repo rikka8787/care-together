@@ -2,6 +2,7 @@ import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { onRequestPost } from '../functions/api/care.js';
 import { onRequestGet } from '../functions/api/config.js';
+import worker from '../worker.js';
 
 const realFetch = globalThis.fetch;
 const env = { LIFF_ID:'liff-id', LINE_CHANNEL_ID:'123456', SUPABASE_URL:'https://example.supabase.co', SUPABASE_SECRET_KEY:'test-server-secret' };
@@ -25,6 +26,26 @@ test('configuration endpoint exposes only LIFF ID',async()=>{
   assert.deepEqual(await result.json(),{liffId:'liff-id'});
   const configured=await onRequestGet({env:{}});
   assert.deepEqual(await configured.json(),{liffId:'2012741362-xQV1Y9gJ'});
+});
+test('Worker routes API requests to the existing handlers',async()=>{
+  const config=await worker.fetch(new Request('https://care.example/api/config'),env);
+  assert.deepEqual(await config.json(),{liffId:'liff-id'});
+  const calls=mock();
+  const care=await worker.fetch(makeRequest('state'),env);
+  assert.equal(care.status,200);
+  assert.equal(JSON.parse(calls[1].options.body).p_actor,userId);
+  const wrongMethod=await worker.fetch(new Request('https://care.example/api/care'),env);
+  assert.equal(wrongMethod.status,405);
+  const missing=await worker.fetch(new Request('https://care.example/api/missing'),env);
+  assert.equal(missing.status,404);
+});
+test('Worker serves non-API requests through the assets binding',async()=>{
+  const request=new Request('https://care.example/');
+  const response=await worker.fetch(request,{ASSETS:{fetch:received=>{
+    assert.equal(received,request);
+    return new Response('asset');
+  }}});
+  assert.equal(await response.text(),'asset');
 });
 test('rejects missing token without touching external services',async()=>{
   const calls=mock();
