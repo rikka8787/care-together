@@ -56,10 +56,19 @@ function valid(action, p) {
 
 export async function onRequestPost({ request, env }) {
   const lineChannelId = env.LINE_CHANNEL_ID || DEFAULT_LINE_CHANNEL_ID;
-  if (!env.SUPABASE_URL || !env.SUPABASE_SECRET_KEY) return reply({ error: 'configuration' }, 503);
+  if (!env.SUPABASE_URL || !env.SUPABASE_SECRET_KEY) {
+    console.error('Configuration error: missing', !env.SUPABASE_URL ? 'SUPABASE_URL' : 'SUPABASE_SECRET_KEY');
+    return reply({ error: 'configuration' }, 503);
+  }
   let supabaseUrl;
-  try { supabaseUrl = new URL(env.SUPABASE_URL); } catch { return reply({ error:'configuration' },503); }
-  if (supabaseUrl.protocol !== 'https:' || !supabaseUrl.hostname.endsWith('.supabase.co') || supabaseUrl.username || supabaseUrl.password || supabaseUrl.port || supabaseUrl.pathname !== '/' || supabaseUrl.search || supabaseUrl.hash) return reply({ error:'configuration' },503);
+  try { supabaseUrl = new URL(env.SUPABASE_URL); } catch {
+    console.error('Configuration error: invalid SUPABASE_URL');
+    return reply({ error:'configuration' },503);
+  }
+  if (supabaseUrl.protocol !== 'https:' || !supabaseUrl.hostname.endsWith('.supabase.co') || supabaseUrl.username || supabaseUrl.password || supabaseUrl.port || supabaseUrl.pathname !== '/' || supabaseUrl.search || supabaseUrl.hash) {
+    console.error('Configuration error: invalid SUPABASE_URL');
+    return reply({ error:'configuration' },503);
+  }
   const token = request.headers.get('Authorization')?.match(/^Bearer (.+)$/)?.[1];
   if (!token || token.length > 10000) return reply({ error: 'unauthorized' }, 401);
   if (!request.headers.get('Content-Type')?.toLowerCase().startsWith('application/json')) return reply({ error: 'invalid' }, 400);

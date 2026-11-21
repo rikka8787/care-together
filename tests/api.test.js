@@ -52,6 +52,25 @@ test('rejects missing token without touching external services',async()=>{
   const result=await onRequestPost({request:makeRequest('state',{},null),env});
   assert.equal(result.status,401); assert.equal(calls.length,0);
 });
+test('reports configuration failures without logging values',async()=>{
+  const original=console.error;
+  const logs=[];
+  console.error=(...args)=>logs.push(args.join(' '));
+  try {
+    for (const settings of [
+      {...env,SUPABASE_URL:''},
+      {...env,SUPABASE_SECRET_KEY:''},
+      {...env,SUPABASE_URL:'https://example.supabase.co/private'}
+    ]) {
+      assert.equal((await onRequestPost({request:makeRequest('state'),env:settings})).status,503);
+    }
+    assert.deepEqual(logs,[
+      'Configuration error: missing SUPABASE_URL',
+      'Configuration error: missing SUPABASE_SECRET_KEY',
+      'Configuration error: invalid SUPABASE_URL'
+    ]);
+  } finally { console.error=original; }
+});
 test('refuses non-Supabase or insecure URLs before transmitting a secret',async()=>{
   const calls=mock();
   for (const url of ['http://example.supabase.co','https://example.supabase.co.attacker.invalid','https://attacker.invalid']) {
