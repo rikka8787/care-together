@@ -35,8 +35,7 @@
 - Build output directory：`public`。
 - `functions/` 必須保留在專案根目錄；Pages 會編譯 Functions。**Cloudflare 網頁後台的直接上傳不支援此專案所需的 Functions**。
 - 在 Pages 專案的環境變數／secrets 設定：
-  - `LIFF_ID`：LIFF 應用程式 ID，可公開。
-  - `LINE_CHANNEL_ID`：LINE Login channel ID，可公開。
+  - 本專案已預設使用 LIFF ID `2012741362-xQV1Y9gJ` 與 LINE Login Channel ID `2012741362`；如要使用其他 LIFF/channel，可用 `LIFF_ID`、`LINE_CHANNEL_ID` 環境變數覆寫。兩者皆為公開識別碼，不是秘密。
   - `SUPABASE_URL`：Supabase Project URL。
     - 本版本僅接受官方 `https://*.supabase.co` Project URL，不接受自訂 Supabase 網域。
   - `SUPABASE_SECRET_KEY`：Supabase secret key，設定為 **secret**，不要放在前端。

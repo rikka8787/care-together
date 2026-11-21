@@ -1,5 +1,6 @@
 const actions = new Set(['session', 'state', 'members', 'member_save', 'member_remove', 'record_add', 'check_set', 'log_add', 'comment_add', 'reaction_set', 'medicine_add', 'medicine_remove', 'appointment_save']);
 const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
+const DEFAULT_LINE_CHANNEL_ID = '2012741362';
 const reply = (data, status = 200) => Response.json(data, { status, headers });
 const userIdPattern = /^U[0-9a-f]{32}$/;
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -54,7 +55,8 @@ function valid(action, p) {
 }
 
 export async function onRequestPost({ request, env }) {
-  if (!env.LINE_CHANNEL_ID || !env.SUPABASE_URL || !env.SUPABASE_SECRET_KEY) return reply({ error: 'configuration' }, 503);
+  const lineChannelId = env.LINE_CHANNEL_ID || DEFAULT_LINE_CHANNEL_ID;
+  if (!env.SUPABASE_URL || !env.SUPABASE_SECRET_KEY) return reply({ error: 'configuration' }, 503);
   let supabaseUrl;
   try { supabaseUrl = new URL(env.SUPABASE_URL); } catch { return reply({ error:'configuration' },503); }
   if (supabaseUrl.protocol !== 'https:' || !supabaseUrl.hostname.endsWith('.supabase.co') || supabaseUrl.username || supabaseUrl.password || supabaseUrl.port || supabaseUrl.pathname !== '/' || supabaseUrl.search || supabaseUrl.hash) return reply({ error:'configuration' },503);
@@ -72,13 +74,13 @@ export async function onRequestPost({ request, env }) {
   try {
     const response = await fetch('https://api.line.me/oauth2/v2.1/verify', {
       method:'POST', headers:{ 'Content-Type':'application/x-www-form-urlencoded' },
-      body:new URLSearchParams({ id_token:token, client_id:env.LINE_CHANNEL_ID }), signal:AbortSignal.timeout(10000)
+      body:new URLSearchParams({ id_token:token, client_id:lineChannelId }), signal:AbortSignal.timeout(10000)
     });
     if (response.status === 400 || response.status === 401) return reply({ error:'unauthorized' },401);
     if (!response.ok) return reply({ error:'identity_unavailable' },503);
     verified = await response.json();
   } catch { return reply({ error:'identity_unavailable' },503); }
-  if (!userIdPattern.test(verified.sub || '') || String(verified.aud) !== String(env.LINE_CHANNEL_ID) || verified.iss !== 'https://access.line.me' || !Number.isFinite(verified.exp) || verified.exp * 1000 <= Date.now()) return reply({ error:'unauthorized' },401);
+  if (!userIdPattern.test(verified.sub || '') || String(verified.aud) !== String(lineChannelId) || verified.iss !== 'https://access.line.me' || !Number.isFinite(verified.exp) || verified.exp * 1000 <= Date.now()) return reply({ error:'unauthorized' },401);
 
   try {
     const response = await fetch(`${supabaseUrl.origin}/rest/v1/rpc/care_api`, {

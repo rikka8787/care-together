@@ -23,6 +23,8 @@ afterEach(()=>{ globalThis.fetch=realFetch; });
 test('configuration endpoint exposes only LIFF ID',async()=>{
   const result=await onRequestGet({env});
   assert.deepEqual(await result.json(),{liffId:'liff-id'});
+  const configured=await onRequestGet({env:{}});
+  assert.deepEqual(await configured.json(),{liffId:'2012741362-xQV1Y9gJ'});
 });
 test('rejects missing token without touching external services',async()=>{
   const calls=mock();
@@ -44,6 +46,13 @@ test('validates LINE claims and never trusts a caller-supplied user ID',async()=
   const request=JSON.parse(calls[1].options.body);
   assert.equal(request.p_actor,userId);
   assert.equal(calls[1].options.headers.apikey,env.SUPABASE_SECRET_KEY);
+});
+test('uses the provided LINE Channel ID when no environment override is set',async()=>{
+  const channelId='2012741362';
+  const calls=mock({...verified,aud:channelId});
+  const response=await onRequestPost({request:makeRequest('state'),env:{...env,LINE_CHANNEL_ID:undefined}});
+  assert.equal(response.status,200);
+  assert.equal(new URLSearchParams(calls[0].options.body).get('client_id'),channelId);
 });
 test('rejects mismatched audience or expired LINE token before database access',async()=>{
   for (const claims of [{...verified,aud:'wrong'},{...verified,exp:1}]) {

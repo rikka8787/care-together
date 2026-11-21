@@ -1,4 +1,5 @@
+const DEFAULT_LIFF_ID = '2012741362-xQV1Y9gJ';
+
 export function onRequestGet({ env }) {
-  if (!env.LIFF_ID) return Response.json({ error: 'configuration' }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
-  return Response.json({ liffId: env.LIFF_ID }, { headers: { 'Cache-Control': 'no-store' } });
+  return Response.json({ liffId: env.LIFF_ID || DEFAULT_LIFF_ID }, { headers: { 'Cache-Control': 'no-store' } });
 }
