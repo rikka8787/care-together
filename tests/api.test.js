@@ -101,6 +101,21 @@ test('rejects mismatched audience or expired LINE token before database access',
     assert.equal(response.status,401); assert.equal(calls.length,1);
   }
 });
+test('logs the reason for LINE authentication failure without logging claims or tokens',async()=>{
+  const original=console.error;
+  const logs=[];
+  console.error=(...args)=>logs.push(args);
+  try {
+    globalThis.fetch=async()=>new Response(null,{status:400});
+    assert.equal((await onRequestPost({request:makeRequest('state'),env})).status,401);
+    mock({...verified,aud:'wrong'});
+    assert.equal((await onRequestPost({request:makeRequest('state'),env})).status,401);
+    assert.deepEqual(logs,[
+      ['LINE authentication error: verification rejected',400],
+      ['LINE authentication error: invalid verified claims',{userIdValid:true,audienceMatches:false,issuerMatches:true,expirationValid:true}]
+    ]);
+  } finally { console.error=original; }
+});
 test('denied identity returns only the verified caller ID',async()=>{
   mock(verified,{error:'forbidden'});
   const response=await onRequestPost({request:makeRequest('state'),env});

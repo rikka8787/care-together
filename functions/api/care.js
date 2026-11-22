@@ -70,7 +70,10 @@ export async function onRequestPost({ request, env }) {
     return reply({ error:'configuration' },503);
   }
   const token = request.headers.get('Authorization')?.match(/^Bearer (.+)$/)?.[1];
-  if (!token || token.length > 10000) return reply({ error: 'unauthorized' }, 401);
+  if (!token || token.length > 10000) {
+    console.error('LINE authentication error: missing or oversized token');
+    return reply({ error: 'unauthorized' }, 401);
+  }
   if (!request.headers.get('Content-Type')?.toLowerCase().startsWith('application/json')) return reply({ error: 'invalid' }, 400);
   if (Number(request.headers.get('Content-Length') || 0) > 1600000) return reply({ error: 'too_large' }, 413);
   let body;
@@ -85,11 +88,22 @@ export async function onRequestPost({ request, env }) {
       method:'POST', headers:{ 'Content-Type':'application/x-www-form-urlencoded' },
       body:new URLSearchParams({ id_token:token, client_id:lineChannelId }), signal:AbortSignal.timeout(10000)
     });
-    if (response.status === 400 || response.status === 401) return reply({ error:'unauthorized' },401);
+    if (response.status === 400 || response.status === 401) {
+      console.error('LINE authentication error: verification rejected', response.status);
+      return reply({ error:'unauthorized' },401);
+    }
     if (!response.ok) return reply({ error:'identity_unavailable' },503);
     verified = await response.json();
   } catch { return reply({ error:'identity_unavailable' },503); }
-  if (!userIdPattern.test(verified.sub || '') || String(verified.aud) !== String(lineChannelId) || verified.iss !== 'https://access.line.me' || !Number.isFinite(verified.exp) || verified.exp * 1000 <= Date.now()) return reply({ error:'unauthorized' },401);
+  if (!userIdPattern.test(verified?.sub || '') || String(verified?.aud) !== String(lineChannelId) || verified?.iss !== 'https://access.line.me' || !Number.isFinite(verified?.exp) || verified.exp * 1000 <= Date.now()) {
+    console.error('LINE authentication error: invalid verified claims', {
+      userIdValid: userIdPattern.test(verified?.sub || ''),
+      audienceMatches: String(verified?.aud) === String(lineChannelId),
+      issuerMatches: verified?.iss === 'https://access.line.me',
+      expirationValid: Number.isFinite(verified?.exp) && verified.exp * 1000 > Date.now()
+    });
+    return reply({ error:'unauthorized' },401);
+  }
 
   try {
     const response = await fetch(`${supabaseUrl.origin}/rest/v1/rpc/care_api`, {
