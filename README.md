@@ -61,6 +61,7 @@
 - `tests/database.sql`：在**隔離的測試資料庫**套用 schema 並建立 Supabase 的 `anon`、`authenticated`、具 `BYPASSRLS` 的 `service_role` 測試角色後執行；測試交易會回滾。
 - 既有單檔原型的 localStorage 資料**不會自動匯入** Supabase。
 - 請使用部署後的 HTTPS 網址開啟；直接以 `file://` 開啟 HTML 無法執行 LIFF 驗證及後端 API。
+- LINE ID Token 到期時，未編輯資料的頁面會嘗試重新登入；編輯中則先提示使用者複製尚未儲存的內容，再按重新登入，避免自動跳轉遺失草稿。在 LINE 內若重新初始化仍失敗，請關閉並重新開啟 LIFF。
 - 前端在頁面開啟且沒有編輯草稿時約每 30 秒更新。照片與完整時間軸目前隨資料同步，資料量增加會影響速度及資料庫容量；正式長期使用前應加入分頁與 Supabase Storage 私有物件存放。
 - 因含健康資料，上線前應完成授權管理、資訊安全審查、備份與復原演練、法規及個資處理評估，並在真實 LINE、Cloudflare、Supabase 環境測試。此專案不提供醫療診斷或緊急監測。
 

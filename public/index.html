@@ -30,7 +30,7 @@
     <div class="brand"><span class="brand-icon">✿</span><span>安心照護<small>一起照顧・一起安心</small></span></div>
     <select id="language" class="language" aria-label="語言 / Bahasa"><option value="zh">繁體中文</option><option value="id">Bahasa Indonesia</option></select>
   </div></header>
-  <div class="shell"><div id="auth-status" class="card" style="margin-top:24px" role="status">正在確認 LINE 登入與存取權限…</div><div id="sync-status" class="error hidden" role="alert"></div></div>
+  <div class="shell"><div id="auth-status" class="card" style="margin-top:24px" role="status">正在確認 LINE 登入與存取權限…</div><div id="sync-status" class="error hidden" role="alert"></div><button id="reauth" class="btn hidden" type="button">重新登入 LINE</button></div>
   <div class="shell layout hidden" id="app">
     <aside class="sidebar" aria-label="主要導覽">
       <div class="side-label">照護空間</div>
@@ -79,7 +79,8 @@
   <dialog id="medicine-dialog"><div class="modal-head"><h2>新增常備藥物</h2><button class="close" type="button" aria-label="關閉">×</button></div><form id="medicine-form" class="modal-body"><div class="form-grid"><label class="field full">藥物名稱<input name="name" required maxlength="80" placeholder="請參照藥袋填寫"></label><label class="field">服用時機<select name="timing"><option value="飯前">飯前</option><option value="飯後">飯後</option><option value="睡前">睡前</option><option value="依醫囑">依醫囑</option></select></label><label class="field">劑量<input name="dose" required maxlength="80" placeholder="例如：1 顆"></label><label class="field full">藥袋照片<input name="photo" type="file" accept="image/*"><span class="form-help">單張上限 1 MB。</span><img class="photo hidden" alt="藥袋照片預覽"></label></div><div class="error" role="alert"></div><div class="form-actions"><button class="btn" type="button" data-close>取消</button><button class="btn primary">儲存藥物</button></div></form></dialog>
   <dialog id="appointment-dialog"><div class="modal-head"><h2>編輯回診資訊</h2><button class="close" type="button" aria-label="關閉">×</button></div><form id="appointment-form" class="modal-body"><div class="form-grid"><label class="field full">回診日期<input name="date" type="date" required></label><label class="field full">醫院與科別<input name="department" required maxlength="100" placeholder="例如：臺大醫院・心臟內科"></label><label class="field full">上次醫囑備忘<textarea name="instructions" maxlength="500" placeholder="例如：回診時攜帶血壓紀錄"></textarea></label></div><div class="error" role="alert"></div><div class="form-actions"><button class="btn" type="button" data-close>取消</button><button class="btn primary">儲存資訊</button></div></form></dialog>
   <div id="toast" class="toast hidden" role="status"></div>
-  <script>
+  <script type="module">
+    import { tokenExpired, reauthenticate, clearReauthenticationAttempt } from './auth.js';
     'use strict';
     const checklistItems = [['breakfast','早餐'],['lunch','午餐'],['dinner','晚餐'],['morningMedicine','早上服藥'],['eveningMedicine','晚上服藥'],['bowel','排便正常']];
     const $ = (s, root = document) => root.querySelector(s);
@@ -115,7 +116,8 @@
       ,'成員管理':'Kelola anggota','所有成員可查看及編輯照護資料；只有管理員可以管理成員。':'Semua anggota dapat melihat dan mengubah data; hanya admin yang dapat mengelola anggota.','新增或更新成員':'Tambah atau ubah anggota','LINE 使用者 ID':'ID pengguna LINE','稱呼':'Nama','權限':'Peran','一般成員':'Anggota','管理員':'Admin','儲存成員':'Simpan anggota','已授權成員':'Anggota yang diizinkan',
       '正在確認 LINE 登入與存取權限…':'Memeriksa login LINE dan izin akses…','請將您的 LINE 使用者 ID 提供給管理員，以加入白名單：':'Berikan ID pengguna LINE Anda kepada admin untuk mendapatkan akses:','登入或連線失敗，請檢查網路設定後重新整理。':'Login atau koneksi gagal. Periksa jaringan dan muat ulang.','連線失敗，資料尚未更新。請檢查網路後重試。':'Koneksi gagal; data belum diperbarui. Periksa jaringan dan coba lagi.','帳號未獲授權，請重新整理並聯絡管理員。':'Akun tidak memiliki akses. Muat ulang dan hubungi admin.','資料已儲存':'Data disimpan','留言已儲存':'Pesan disimpan','無法更新成員，請確認資料並保留至少一位管理員。':'Tidak dapat memperbarui anggota. Periksa data dan pastikan setidaknya ada satu admin.','確認移除此成員？':'Hapus anggota ini?','無法載入成員，請稍後重試。':'Tidak dapat memuat anggota. Coba lagi nanti.','資料更新中，請稍候。':'Data sedang diperbarui, harap tunggu.',
       '警示僅依範例門檻檢查收縮壓、血氧與體溫，不檢查舒張壓及脈搏；無警示不代表醫療判斷。數據僅供照護紀錄與溝通，如有不適或疑慮，請聯絡醫療專業人員；如有緊急狀況請立即撥打 119。':'Peringatan hanya memeriksa tekanan sistolik, oksigen, dan suhu berdasarkan ambang contoh, bukan diastolik atau denyut nadi. Tidak ada peringatan bukan penilaian medis. Jika ada keluhan, hubungi tenaga medis; dalam keadaan darurat di Taiwan, hubungi 119.'
-      ,'同步失敗，無法確認是否已儲存。請重新整理確認後再試。':'Sinkronisasi gagal; penyimpanan belum dapat dipastikan. Muat ulang dan periksa sebelum mencoba lagi.','資料格式不正確，請確認後重試。':'Format data tidak valid. Periksa dan coba lagi.','管理員權限已移除。':'Hak admin telah dicabut.'
+      ,'同步失敗，無法確認是否已儲存。請重新整理確認後再試。':'Sinkronisasi gagal; penyimpanan belum dapat dipastikan. Muat ulang dan periksa sebelum mencoba lagi.','資料格式不正確，請確認後重試。':'Format data tidak valid. Periksa dan coba lagi.','管理員權限已移除。':'Hak admin telah dicabut.',
+      '重新登入 LINE':'Login kembali ke LINE','LINE 登入已過期。請先複製尚未儲存的內容，關閉編輯視窗後按重新登入；若仍無法登入，請關閉後重新開啟。':'Login LINE telah kedaluwarsa. Salin perubahan yang belum disimpan, tutup jendela edit, lalu login kembali; jika masih gagal, tutup dan buka kembali.'
     };
     const languageKey = 'care-together-language-v1';
     let language = 'zh';
@@ -147,12 +149,22 @@
     async function api(action,payload={}) {
       const token=liff.getIDToken();
       if(!token) throw new Error('unauthorized');
+      if(tokenExpired(liff)) throw new Error('session_expired');
       const response=await fetch('/api/care',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({action,payload}),cache:'no-store'});
       const result=await response.json();
       if(!response.ok) { const error=new Error(result.error || 'network'); error.userId=result.userId; throw error; }
       return result;
     }
     function syncError(error) {
+      if(error.message==='session_expired') {
+        session=null;
+        const message=t('LINE 登入已過期。請先複製尚未儲存的內容，關閉編輯視窗後按重新登入；若仍無法登入，請關閉後重新開啟。');
+        $('#sync-status').textContent=message;
+        const dialogError=$('dialog[open] .error'); if(dialogError) dialogError.textContent=message;
+        $('#sync-status').classList.remove('hidden');
+        $('#reauth').classList.remove('hidden');
+        return;
+      }
       const denied=error.message==='forbidden'||error.message==='unauthorized';
       const message=denied ? '帳號未獲授權，請重新整理並聯絡管理員。' : error.message==='invalid' ? '資料格式不正確，請確認後重試。' : '同步失敗，無法確認是否已儲存。請重新整理確認後再試。';
       if(denied) { session=null; data={records:[],checklists:{},logs:[],comments:{},reactions:{},medicines:[],appointment:null}; $('#app').classList.add('hidden'); authMessage=message; authUserId=''; showAuthMessage(); $('#auth-status').classList.remove('hidden'); }
@@ -247,14 +259,14 @@
       const check=event.target.closest('[data-check]'); if(check) { const day=localDate(),item=check.dataset.check; await update('check_set',{day,item,done:!(data.checklists[day]||{})[item]}); return; }
       const react=event.target.closest('[data-react]'); if(react) { const {id,react:kind}=react.dataset; await update('reaction_set',{targetId:id,targetType:react.closest('article').dataset.type,kind,selected:!(data.reactions[id]||{})[kind]}); return; }
       const remove=event.target.closest('[data-remove-medicine]'); if(remove) { if(confirm(t('確定要移除此藥物紀錄嗎？'))) await update('medicine_remove',{id:remove.dataset.removeMedicine}); return; }
-      const removeMember=event.target.closest('[data-remove-member]'); if(removeMember) { if(confirm(t('確認移除此成員？'))) { try { await api('member_remove',{userId:removeMember.dataset.removeMember}); await loadMembers(); } catch(error) { $('#member-error').textContent=t('無法更新成員，請確認資料並保留至少一位管理員。'); } } return; }
+      const removeMember=event.target.closest('[data-remove-member]'); if(removeMember) { if(confirm(t('確認移除此成員？'))) { try { await api('member_remove',{userId:removeMember.dataset.removeMember}); await loadMembers(); } catch(error) { if(error.message==='session_expired') syncError(error); else $('#member-error').textContent=t('無法更新成員，請確認資料並保留至少一位管理員。'); } } return; }
       const range=event.target.closest('[data-days]'); if(range) { chartDays=Number(range.dataset.days); $$('[data-days]').forEach(b=>b.classList.toggle('active',b===range)); renderCharts(); return; }
       if(event.target.closest('#edit-appointment')) openDialog('appointment-dialog');
     });
     document.addEventListener('submit',async event=>{
       const form=event.target; event.preventDefault();
       if(form.matches('.comment-form')) { const text=form.elements.comment.value.trim(); if(!text){form.elements.comment.setCustomValidity(t('請輸入留言內容。'));form.elements.comment.reportValidity();form.elements.comment.setCustomValidity('');return;} form.dataset.operationId ||= uid(); const container=form.closest('#home-timeline')?'home-timeline':'all-timeline', targetId=form.dataset.id; if(await update('comment_add',{id:form.dataset.operationId,targetId,targetType:form.closest('article').dataset.type,text})) { const current=$(`#${container} .comment-form[data-id="${CSS.escape(targetId)}"]`); if(current) { current.reset(); delete current.dataset.operationId; } toast('留言已儲存'); } return; }
-      if(form.id==='member-form') { const error=$('#member-error'); error.textContent=''; try { await api('member_save',{userId:form.elements.userId.value.trim(),name:form.elements.name.value.trim(),isAdmin:form.elements.role.value==='admin'}); form.reset(); await loadMembers(); toast('資料已儲存'); } catch(e) { error.textContent=t('無法更新成員，請確認資料並保留至少一位管理員。'); } return; }
+      if(form.id==='member-form') { const error=$('#member-error'); error.textContent=''; try { await api('member_save',{userId:form.elements.userId.value.trim(),name:form.elements.name.value.trim(),isAdmin:form.elements.role.value==='admin'}); form.reset(); await loadMembers(); toast('資料已儲存'); } catch(e) { if(e.message==='session_expired') syncError(e); else error.textContent=t('無法更新成員，請確認資料並保留至少一位管理員。'); } return; }
       const error=$('.error',form); error.textContent='';
       try {
         if(form.id==='record-form') {
@@ -307,6 +319,7 @@
         $('#member-error').textContent='';
         $('#member-list').innerHTML=members.map(member=>`<div class="info-row"><div style="flex:1;min-width:0"><strong>${escapeHtml(member.name)}</strong><p style="overflow-wrap:anywhere">${escapeHtml(member.userId)} · ${t(member.isAdmin?'管理員':'一般成員')}</p></div><button class="btn small danger" data-remove-member="${escapeHtml(member.userId)}">${t('移除')}</button></div>`).join('');
       } catch(error) {
+        if(error.message==='session_expired') { syncError(error); return; }
         if(error.message==='forbidden') {
           try { session=await api('session'); if(!session.isAdmin) { $('#admin-nav').classList.add('hidden'); navigate('home'); toast('管理員權限已移除。'); return; } }
           catch(authError) { syncError(authError); return; }
@@ -325,6 +338,11 @@
         const config=await response.json();
         await liff.init({liffId:config.liffId});
         if(!liff.isLoggedIn()) { liff.login({redirectUri:location.origin+location.pathname}); return; }
+        if(tokenExpired(liff)) {
+          if(reauthenticate(liff,sessionStorage,location)) return;
+          throw new Error('session_expired');
+        }
+        clearReauthenticationAttempt(sessionStorage);
         session=await api('session');
         data=await api('state');
         $('#admin-nav').classList.toggle('hidden',!session.isAdmin);
@@ -332,7 +350,10 @@
         $('#app').classList.remove('hidden');
         render();
       } catch(error) {
-        if(error.message==='forbidden' && error.userId) {
+        if(error.message==='session_expired') {
+          authMessage='LINE 登入已過期。請先複製尚未儲存的內容，關閉編輯視窗後按重新登入；若仍無法登入，請關閉後重新開啟。'; authUserId='';
+          $('#reauth').classList.remove('hidden');
+        } else if(error.message==='forbidden' && error.userId) {
           authMessage='請將您的 LINE 使用者 ID 提供給管理員，以加入白名單：'; authUserId=error.userId;
         } else { authMessage='登入或連線失敗，請檢查網路設定後重新整理。'; authUserId=''; }
         showAuthMessage();
@@ -342,9 +363,19 @@
       if(!session || busy || document.hidden || $('dialog[open]') || $$('.comment-form input').some(input=>input.value.trim()) || currentPage==='admin') return;
       busy=true;
       try { const latest=await api('state'); if(!$('dialog[open]') && !$$('.comment-form input').some(input=>input.value.trim())) { data=latest; render(); } $('#sync-status').classList.add('hidden'); }
-      catch(error) { syncError(error); }
+      catch(error) {
+        if(error.message==='session_expired') {
+          try { if(reauthenticate(liff,sessionStorage,location)) return; }
+          catch(authError) { console.error('LINE reauthentication failed', authError); }
+        }
+        syncError(error);
+      }
       finally { busy=false; }
     }
+    $('#reauth').addEventListener('click',()=>{
+      try { clearReauthenticationAttempt(sessionStorage); reauthenticate(liff,sessionStorage,location); }
+      catch(error) { console.error('LINE reauthentication failed',error); $('#sync-status').textContent=t('登入或連線失敗，請檢查網路設定後重新整理。'); $('#sync-status').classList.remove('hidden'); }
+    });
     translateStatic();
     start();
     setInterval(refresh,30000);
